@@ -220,7 +220,11 @@ class Array : public SmartPtr<ArrayData> {
   Variant rvalAt(short key, int64 prehash = -1, bool error = false) const;
   Variant rvalAt(int key, int64 prehash = -1, bool error = false) const;
   Variant rvalAt(int64 key, int64 prehash = -1, bool error = false) const;
+#ifdef WORDSIZE_IS_64
   Variant rvalAt(ssize_t key, int64 prehash = -1, bool error = false) const;
+#else
+  Variant rvalAt(long key, int64 prehash = -1, bool error = false) const;
+#endif
   Variant rvalAt(double key, int64 prehash = -1, bool error = false) const;
   Variant rvalAt(litstr key, int64 prehash = -1, bool error = false,
                  bool isString = false) const;
@@ -233,7 +237,11 @@ class Array : public SmartPtr<ArrayData> {
   const Variant operator[](short   key) const;
   const Variant operator[](int     key) const;
   const Variant operator[](int64   key) const;
+#ifdef WORDSIZE_IS_64
   const Variant operator[](ssize_t key) const;
+#else
+  const Variant operator[](long key) const;
+#endif
   const Variant operator[](double  key) const;
   const Variant operator[](litstr  key) const;
   const Variant operator[](CStrRef key) const;

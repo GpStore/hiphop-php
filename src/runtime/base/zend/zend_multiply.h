@@ -15,7 +15,7 @@
    +----------------------------------------------------------------------+
 */
 
-#if defined(__i386__) && defined(__GNUC__)
+#if defined(__i386__) && defined(__GNUC__) && defined(WORDSIZE_IS_64)
 
 #define ZEND_SIGNED_MULTIPLY_LONG(a, b, lval, dval, usedval) do {	\
     long __tmpvar;                                                      \
@@ -30,7 +30,7 @@
 #else
 
 #define ZEND_SIGNED_MULTIPLY_LONG(a, b, lval, dval, usedval) do {       \
-    long   __lres  = (a) * (b);                                         \
+    uint64   __lres  = (a) * (b);                                         \
     long double __dres  = (long double)(a) * (long double)(b);          \
     long double __delta = (long double) __lres - __dres;                \
     if ( ((usedval) = (( __dres + __delta ) != __dres))) {              \

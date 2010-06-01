@@ -397,11 +397,19 @@ Variant Array::rvalAt(int64 key, int64 prehash /* = -1 */,
   return null_variant;
 }
 
+#ifdef WORDSIZE_IS_64
 Variant Array::rvalAt(ssize_t key, int64 prehash /* = -1 */,
                       bool error /* = false */) const {
   if (m_px) return m_px->get((int64)key, error);
   return null_variant;
 }
+#else
+Variant Array::rvalAt(long key, int64 prehash /* = -1 */,
+                      bool error /* = false */) const {
+  if (m_px) return m_px->get((int64)key, error);
+  return null_variant;
+}
+#endif
 
 Variant Array::rvalAt(double key, int64 prehash /* = -1 */,
                       bool error /* = false */) const {

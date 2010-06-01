@@ -51,8 +51,10 @@ extern const Variant null_variant;
 extern const String null_string;
 extern const Array null_array;
 #if defined(__GNUC__)
+#ifdef WORDSIZE_IS_64
 #define FAST_REFCOUNT_FOR_VARIANT
 #define FAST_REFCOUNT_OFFSET (sizeof(void*))
+#endif
 #endif
 
 /**
@@ -146,10 +148,6 @@ enum StringDataMode {
  * for being able to vertically align type-specialized functions so they look
  * cleaner.
  */
-typedef char int8;
-typedef int int32;
-typedef long long int64;
-typedef unsigned long long uint64;
 typedef const char * litstr; /* literal string */
 typedef const String & CStrRef;
 typedef const Array & CArrRef;

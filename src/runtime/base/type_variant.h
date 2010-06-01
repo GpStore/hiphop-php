@@ -111,7 +111,11 @@ class Variant {
   Variant(int     v) : _count(0), m_type(KindOfInt32  ) { m_data.num = v;}
   Variant(int64   v) : _count(0), m_type(KindOfInt64  ) { m_data.num = v;}
   Variant(uint64  v) : _count(0), m_type(KindOfInt64  ) { m_data.num = v;}
+#ifdef WORDSIZE_IS_64
   Variant(ssize_t v) : _count(0), m_type(KindOfInt64  ) { m_data.num = v;}
+#else
+  Variant(long v) : _count(0), m_type(KindOfInt32  ) { m_data.num = v;}
+#endif
   Variant(double  v) : _count(0), m_type(KindOfDouble ) { m_data.dbl = v;}
   Variant(litstr  v) : _count(0), m_type(LiteralString) { m_data.str = v;}
 
@@ -1127,9 +1131,15 @@ inline const Variant Array::operator[](int64   key) const {
   return rvalAt(key);
 }
 
+#ifdef WORDSIZE_IS_64
 inline const Variant Array::operator[](ssize_t key) const {
   return rvalAt(key);
 }
+#else
+inline const Variant Array::operator[](long key) const {
+  return rvalAt(key);
+}
+#endif
 
 inline const Variant Array::operator[](double  key) const {
   return rvalAt(key);
