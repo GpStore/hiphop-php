@@ -59,14 +59,24 @@ namespace HPHP {
 ///////////////////////////////////////////////////////////////////////////////
 // system includes
 
+#if __WORDSIZE == 64
+#define WORDSIZE_IS_64
+#endif
+
 typedef unsigned char uchar;
+typedef char int8;
 typedef unsigned char uint8;
 typedef short int16;
 typedef unsigned short uint16;
-typedef int int32;
-typedef unsigned int uint32;
+typedef int32_t int32;
+typedef uint32_t uint32;
+#ifdef WORDSIZE_IS_64
 typedef long long int64;
 typedef unsigned long long uint64;
+#else
+typedef int64_t int64;
+typedef uint64_t uint64;
+#endif
 
 #ifndef ULLONG_MAX
 #define ULLONG_MAX 0xffffffffffffffffULL
