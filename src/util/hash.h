@@ -20,13 +20,13 @@
 namespace HPHP {
 ///////////////////////////////////////////////////////////////////////////////
 
-inline long long hash_int64(long long key) {
+inline int64 hash_int64(int64 key) {
   key = (~key) + (key << 21); // key = (key << 21) - key - 1;
-  key = key ^ ((unsigned long long)key >> 24);
+  key = key ^ ((uint64)key >> 24);
   key = (key + (key << 3)) + (key << 8); // key * 265
-  key = key ^ ((unsigned long long)key >> 14);
+  key = key ^ ((uint64)key >> 14);
   key = (key + (key << 2)) + (key << 4); // key * 21
-  key = key ^ ((unsigned long long)key >> 28);
+  key = key ^ ((uint64)key >> 28);
   key = key + (key << 31);
   return key < 0 ? -key : key;
 }
@@ -49,17 +49,21 @@ inline long long hash_int64(long long key) {
  * do not change the correctness.
  */
 
-inline long long hash_string(const char *arKey, int nKeyLength) {
-  const long long m = 0xc6a4a7935bd1e995;
+inline int64 hash_string(const char *arKey, int nKeyLength) {
+  const uint64 m = 0xc6a4a7935bd1e995ULL;
   const int r = 47;
 
-  register unsigned long long h = 0;
+#ifdef WORDSIZE_IS_64
+  register uint64 h = 0;
+#else
+  uint64 h = 0;
+#endif
 
-  const unsigned long long * data = (const unsigned long long *)arKey;
-  const unsigned long long * end = data + (nKeyLength / 8);
+  const uint64 * data = (const uint64 *)arKey;
+  const uint64 * end = data + (nKeyLength / 8);
 
   while (data != end) {
-    unsigned long long k = *data++;
+    uint64 k = *data++;
 
     k *= m;
     k ^= k >> r;
@@ -72,37 +76,41 @@ inline long long hash_string(const char *arKey, int nKeyLength) {
   const unsigned char * data2 = (const unsigned char*)data;
 
   switch (nKeyLength & 7) {
-  case 7: h ^= (unsigned long long)(data2[6]) << 48;
-  case 6: h ^= (unsigned long long)(data2[5]) << 40;
-  case 5: h ^= (unsigned long long)(data2[4]) << 32;
-  case 4: h ^= (unsigned long long)(data2[3]) << 24;
-  case 3: h ^= (unsigned long long)(data2[2]) << 16;
-  case 2: h ^= (unsigned long long)(data2[1]) << 8;
-  case 1: h ^= (unsigned long long)(data2[0]);
+  case 7: h ^= (uint64)(data2[6]) << 48;
+  case 6: h ^= (uint64)(data2[5]) << 40;
+  case 5: h ^= (uint64)(data2[4]) << 32;
+  case 4: h ^= (uint64)(data2[3]) << 24;
+  case 3: h ^= (uint64)(data2[2]) << 16;
+  case 2: h ^= (uint64)(data2[1]) << 8;
+  case 1: h ^= (uint64)(data2[0]);
           h *= m;
-          h &= 0x7fffffffffffffff;
+          h &= 0x7fffffffffffffffLL;
   };
 
   h ^= h >> r;
   h *= m;
-  h &= 0x7fffffffffffffff;
+  h &= 0x7fffffffffffffffLL;
   h ^= h >> r;
 
   return h;
 }
 
-inline long long hash_string_i(const char *arKey, int nKeyLength) {
-  const unsigned long long m = 0xc6a4a7935bd1e995;
+inline int64 hash_string_i(const char *arKey, int nKeyLength) {
+  const uint64 m = 0xc6a4a7935bd1e995ULL;
   const int r = 47;
 
-  register unsigned long long h = 0;
+#ifdef WORDSIZE_IS_64
+  register uint64 h = 0;
+#else
+  uint64 h = 0;
+#endif
 
-  const unsigned long long * data = (const unsigned long long *)arKey;
-  const unsigned long long * end = data + (nKeyLength / 8);
+  const uint64 * data = (const uint64 *)arKey;
+  const uint64 * end = data + (nKeyLength / 8);
 
   while (data != end) {
-    unsigned long long k = *data++;
-    k &= 0xdfdfdfdfdfdfdfdf; // a-z => A-Z
+    uint64 k = *data++;
+    k &= 0xdfdfdfdfdfdfdfdfULL; // a-z => A-Z
 
     k *= m;
     k ^= k >> r;
@@ -115,13 +123,13 @@ inline long long hash_string_i(const char *arKey, int nKeyLength) {
   const unsigned char * data2 = (const unsigned char*)data;
 
   switch (nKeyLength & 7) {
-  case 7: h ^= (unsigned long long)(data2[6] & 0xdf) << 48;
-  case 6: h ^= (unsigned long long)(data2[5] & 0xdf) << 40;
-  case 5: h ^= (unsigned long long)(data2[4] & 0xdf) << 32;
-  case 4: h ^= (unsigned long long)(data2[3] & 0xdf) << 24;
-  case 3: h ^= (unsigned long long)(data2[2] & 0xdf) << 16;
-  case 2: h ^= (unsigned long long)(data2[1] & 0xdf) << 8;
-  case 1: h ^= (unsigned long long)(data2[0] & 0xdf);
+  case 7: h ^= (uint64)(data2[6] & 0xdf) << 48;
+  case 6: h ^= (uint64)(data2[5] & 0xdf) << 40;
+  case 5: h ^= (uint64)(data2[4] & 0xdf) << 32;
+  case 4: h ^= (uint64)(data2[3] & 0xdf) << 24;
+  case 3: h ^= (uint64)(data2[2] & 0xdf) << 16;
+  case 2: h ^= (uint64)(data2[1] & 0xdf) << 8;
+  case 1: h ^= (uint64)(data2[0] & 0xdf);
           h *= m;
   };
 
@@ -129,7 +137,7 @@ inline long long hash_string_i(const char *arKey, int nKeyLength) {
   h *= m;
   h ^= h >> r;
 
-  return h & 0x7fffffffffffffff;
+  return h & 0x7fffffffffffffffULL;
 }
 
 #else /* not using murmur hashing */
@@ -167,8 +175,12 @@ inline long long hash_string_i(const char *arKey, int nKeyLength) {
  *                  -- Ralf S. Engelschall <rse@engelschall.com>
  */
 
-inline long long hash_string(const char *arKey, int nKeyLength) {
-  register unsigned long long hash = 5381;
+inline int64 hash_string(const char *arKey, int nKeyLength) {
+#ifdef WORDSIZE_IS_64
+  register uint64 hash = 5381;
+#else
+  uint64 hash = 5381;
+#endif
 
   /* variant with the hash unrolled eight times */
   for (; nKeyLength >= 8; nKeyLength -= 8) {
@@ -194,13 +206,18 @@ inline long long hash_string(const char *arKey, int nKeyLength) {
     ASSERT(false);
     break;
   }
-  long long ret = hash;
+  int64 ret = hash;
   return ret < 0 ? -ret : ret;
 }
 
 // Case insensitive version. Hash will be equivalent to hash_string of lower
-inline long long hash_string_i(const char *arKey, int nKeyLength) {
-  register unsigned long long hash = 5381;
+inline int64 hash_string_i(const char *arKey, int nKeyLength) {
+#ifdef WORDSIZE_IS_64
+  register uint64 hash = 5381;
+#else
+  uint64 hash = 5381;
+#endif
+
   char c;
   char diff = 'a' - 'A';
   /* variant with the hash unrolled eight times */
@@ -264,7 +281,7 @@ inline long long hash_string_i(const char *arKey, int nKeyLength) {
     ASSERT(false);
     break;
   }
-  long long ret = hash;
+  int64 ret = hash;
   return ret < 0 ? -ret : ret;
 }
 
@@ -275,10 +292,10 @@ inline long long hash_string_i(const char *arKey, int nKeyLength) {
  * where a binary string is treated as a NULL-terminated literal. Do we ever
  * allow binary strings as array keys or symbol names?
  */
-inline long long hash_string(const char *arKey) {
+inline int64 hash_string(const char *arKey) {
   return hash_string(arKey, strlen(arKey));
 }
-inline long long hash_string_i(const char *arKey) {
+inline int64 hash_string_i(const char *arKey) {
   return hash_string_i(arKey, strlen(arKey));
 }
 
@@ -329,7 +346,7 @@ inline bool is_strictly_integer(const char* arKey, size_t nKeyLength,
       }
     }
     if (good) {
-      if (num <= 0x7FFFFFFFFFFFFFFE || (neg && num == 0x7FFFFFFFFFFFFFFF)) {
+      if (num <= 0x7FFFFFFFFFFFFFFEULL || (neg && num == 0x7FFFFFFFFFFFFFFFULL)) {
         res = neg ? 0 - num : (int64)num;
         return true;
       }
