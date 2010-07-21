@@ -194,6 +194,12 @@ if (NOT BINUTIL_LIB)
 	message(FATAL_ERROR "You need to install binutils")
 endif()
 
+# Bz2
+FIND_LIBRARY (BZ2_LIB bz2)
+if (NOT BZ2_LIB)
+	message(FATAL_ERROR "You need to install libbz2")
+endif()
+
 #find_package(BISON REQUIRED)
 #find_package(FLEX REQUIRED)
 
@@ -235,6 +241,7 @@ macro(hphp_link target)
 	target_link_libraries(${target} ${CRYPT_LIB})
 	target_link_libraries(${target} ${RESOLV_LIB})
 	target_link_libraries(${target} ${RT_LIB})
+	target_link_libraries(${target} ${BZ2_LIB})
 
 	if (USE_TCMALLOC AND HAVE_TCMALLOC)
 		target_link_libraries(${target} ${GOOGLE_TCMALLOC_LIB})
