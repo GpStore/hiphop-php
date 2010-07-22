@@ -2,26 +2,26 @@ set(unicode_files 8859-1.TXT 8859-2.TXT 8859-3.TXT 8859-4.TXT 8859-5.TXT 8859-6.
 	8859-7.TXT 8859-8.TXT 8859-9.TXT 8859-10.TXT 8859-11.TXT
 	8859-13.TXT 8859-14.TXT 8859-15.TXT 8859-16.TXT)
 
-FIND_PROGRAM(AWK_EXECUTABLE NAMES gawk awk)
+#FIND_PROGRAM(AWK_EXECUTABLE NAMES gawk awk)
 
 foreach(unicode_file ${unicode_files})
 	string(REGEX REPLACE "([0-9]+)-([0-9]+).TXT" "iso\\1_\\2"
 	         variable_name "${unicode_file}")
 	string(TOUPPER "${variable_name}" variable_name_upper)
-
-	if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${unicode_file}")
-		message(STATUS "Downloading ${unicode_file}")
-		file(DOWNLOAD "ftp://ftp.unicode.org/Public/MAPPINGS/ISO8859/${unicode_file}" "${CMAKE_CURRENT_SOURCE_DIR}/${unicode_file}")
-	endif()
-
-	set_property(DIRECTORY APPEND PROPERTY ADDITIONAL_MAKE_CLEAN_FILES "${CMAKE_CURRENT_SOURCE_DIR}/${unicode_file}")
-	set_property(DIRECTORY APPEND PROPERTY ADDITIONAL_MAKE_CLEAN_FILES "${CMAKE_CURRENT_SOURCE_DIR}/unicode_table_${variable_name}.h")
-
-	execute_process(
-						COMMAND ${AWK_EXECUTABLE} -v TABLE_NAME=${variable_name}_ucs_table -v IFNDEF_NAME=UNICODE_TABLE_${variable_name_upper}_H -f mk_sb_tbl.awk ${unicode_file}
-						WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-						OUTPUT_FILE unicode_table_${variable_name}.h
-					)
+#
+#	if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${unicode_file}")
+#		message(STATUS "Downloading ${unicode_file}")
+#		file(DOWNLOAD "ftp://ftp.unicode.org/Public/MAPPINGS/ISO8859/${unicode_file}" "${CMAKE_CURRENT_SOURCE_DIR}/${unicode_file}")
+#	endif()
+#
+#	set_property(DIRECTORY APPEND PROPERTY ADDITIONAL_MAKE_CLEAN_FILES "${CMAKE_CURRENT_SOURCE_DIR}/${unicode_file}")
+#	set_property(DIRECTORY APPEND PROPERTY ADDITIONAL_MAKE_CLEAN_FILES "${CMAKE_CURRENT_SOURCE_DIR}/unicode_table_${variable_name}.h")
+#
+#	execute_process(
+#						COMMAND ${AWK_EXECUTABLE} -v TABLE_NAME=${variable_name}_ucs_table -v IFNDEF_NAME=UNICODE_TABLE_${variable_name_upper}_H -f mk_sb_tbl.awk ${unicode_file}
+#						WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+#						OUTPUT_FILE unicode_table_${variable_name}.h
+#					)
 endforeach()
 
 SET(_mbfl_filters_files mbfilter_cp936.c mbfilter_hz.c mbfilter_euc_tw.c mbfilter_big5.c

@@ -32,3 +32,9 @@
 CMakeFiles
 CMakeCache.txt
 cmake_install.cmake
+
+Makefile
+/src/Makefile
+/src/compiler/Makefile
+/src/hphp/Makefile
+/src/test/Makefile
