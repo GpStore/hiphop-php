@@ -74,4 +74,5 @@
 #include <runtime/ext/profile/extprofile_variable.h>
 #include <runtime/ext/profile/extprofile_xml.h>
 #include <runtime/ext/profile/extprofile_xmlwriter.h>
+#include <runtime/ext/profile/extprofile_zip.h>
 #include <runtime/ext/profile/extprofile_zlib.h>

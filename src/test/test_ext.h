@@ -72,4 +72,5 @@
 #include <test/test_ext_variable.h>
 #include <test/test_ext_xml.h>
 #include <test/test_ext_xmlwriter.h>
+#include <test/test_ext_zip.h>
 #include <test/test_ext_zlib.h>

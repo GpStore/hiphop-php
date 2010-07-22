@@ -57,4 +57,5 @@
 #include "variable.inc"
 #include "xml.inc"
 #include "xmlwriter.inc"
+#include "zip.inc"
 #include "zlib.inc"

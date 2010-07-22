@@ -194,6 +194,12 @@ if (NOT BINUTIL_LIB)
 	message(FATAL_ERROR "You need to install binutils")
 endif()
 
+# zip 
+FIND_LIBRARY (ZIP_LIB zip)
+if (NOT ZIP_LIB)
+	message(FATAL_ERROR "You need to install libzip")
+endif()
+
 #find_package(BISON REQUIRED)
 #find_package(FLEX REQUIRED)
 
@@ -235,6 +241,7 @@ macro(hphp_link target)
 	target_link_libraries(${target} ${CRYPT_LIB})
 	target_link_libraries(${target} ${RESOLV_LIB})
 	target_link_libraries(${target} ${RT_LIB})
+	target_link_libraries(${target} ${ZIP_LIB})
 
 	if (USE_TCMALLOC AND HAVE_TCMALLOC)
 		target_link_libraries(${target} ${GOOGLE_TCMALLOC_LIB})
