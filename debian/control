@@ -1,0 +1,11 @@
+Package: hphp
+Version: HPHP_VERSION
+Section: devel
+Priority: optional
+Architecture: HPHP_ARCH
+Depends: libc6 (>= 2.2.5), cmake (>= 2.6.4), g++ (>= 4.1), binutils-dev, make, libboost-dev (>= 1.37), libboost-system-dev (>= 1.37), libboost-program-options-dev (>= 1.37), libboost-filesystem-dev (>= 1.37), libboost-date-time-dev (>= 1.37), libmysqlclient15-dev, libxml2-dev, libmcrypt-dev, libcap-dev, libgd2-xpm-dev, zlib1g-dev, libtbb-dev (>= 2.1r17), libonig-dev, libpcre3-dev, libcurl4-openssl-dev, libmemcached-dev, libcurl3, libevent-dev, libicu42 (>= 4.2), libicu-dev (>= 4.2)
+Installed-Size: HPHP_SIZE
+Maintainer: Hui Chen <usa.chen@gmail.com> 
+Description: hphp is a source code transformer which transforms PHP source code into highly optimized C++ and then compiles it using g++. 
+ .
+ Facebook sees about a 50% reduction in CPU usage when serving equal amounts of Web traffic when compared to Apache and PHP.  Facebook's API tier can serve twice the traffic using 30% less CPU.

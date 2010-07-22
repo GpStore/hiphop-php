@@ -23,6 +23,7 @@
 #include <util/db_query.h>
 #include <util/util.h>
 #include <boost/algorithm/string/trim.hpp>
+#include <boost/filesystem.hpp>
 
 using namespace HPHP;
 using namespace std;
@@ -195,9 +196,15 @@ std::string Option::GetSystemRoot() {
   if (SystemRoot.empty()) {
     const char *home = getenv("HPHP_HOME");
     if (!home || !*home) {
-      throw Exception("Environment variable HPHP_HOME is not set.");
+      if (filesystem::exists("/usr/share/hphp/") && filesystem::exists("/usr/bin/hphp"))
+        SystemRoot = "/usr/share/hphp";
+      else if (filesystem::exists("/usr/local/share/hphp/") && filesystem::exists("/usr/local/bin/hphp"))
+        SystemRoot = "/usr/local/share/hphp";
+      else
+	    throw Exception("Environment variable HPHP_HOME is not set.");
     }
-    SystemRoot = home;
+	else
+      SystemRoot = home;
     SystemRoot += "/src";
   }
   return SystemRoot;

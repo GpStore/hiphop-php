@@ -44,6 +44,7 @@
 using namespace HPHP;
 using namespace std;
 using namespace boost::program_options;
+using namespace boost;
 
 struct ProgramOptions {
   string target;
@@ -796,10 +797,18 @@ int generateSepExtCpp(const ProgramOptions &po, AnalysisResultPtr ar) {
 
 int buildTarget(const ProgramOptions &po) {
   const char *HPHP_HOME = getenv("HPHP_HOME");
+  string cmd;
   if (!HPHP_HOME || !*HPHP_HOME) {
-    throw Exception("Environment variable HPHP_HOME is not set.");
+    if (filesystem::exists("/usr/share/hphp/") && filesystem::exists("/usr/bin/hphp"))
+      cmd = "/usr/share/hphp";
+    else if (filesystem::exists("/usr/local/share/hphp/") && filesystem::exists("/usr/local/bin/hphp"))
+      cmd = "/usr/local/share/hphp";
+    else
+      throw Exception("Environment variable HPHP_HOME is not set.");
   }
-  string cmd = string(HPHP_HOME) + "/bin/run.sh";
+  else
+    cmd = HPHP_HOME;
+  cmd = cmd + "/bin/run.sh";
   string flags;
   if (getenv("RELEASE"))      flags += "RELEASE=1 ";
   if (getenv("SHOW_LINK"))    flags += "SHOW_LINK=1 ";

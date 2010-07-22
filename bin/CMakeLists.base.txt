@@ -19,10 +19,18 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6.4 FATAL_ERROR)
 PROJECT(hphp C CXX)
 
 IF("$ENV{HPHP_HOME}" STREQUAL "")
-        message(FATAL_ERROR "You should set the HPHP_HOME environmental")
-ENDIF()
-
-file(TO_CMAKE_PATH "$ENV{HPHP_HOME}" HPHP_HOME)
+	IF(EXISTS "/usr/share/hphp/" AND EXISTS "/usr/bin/hphp")
+		FILE(TO_CMAKE_PATH "/usr/share/hphp" HPHP_HOME)
+	ELSE(EXISTS "/usr/share/hphp/" AND EXISTS "/usr/bin/hphp")
+		IF(EXISTS "/usr/local/share/hphp/" AND EXISTS "/usr/local/bin/hphp")
+			FILE(TO_CMAKE_PATH "/usr/local/share/hphp" HPHP_HOME)
+		ELSE(EXISTS "/usr/local/share/hphp/" AND EXISTS "/usr/local/bin/hphp")
+			message(FATAL_ERROR "Can't find hphp and the HPHP_HOME environmental is not set")
+		ENDIF(EXISTS "/usr/local/share/hphp/" AND EXISTS "/usr/local/bin/hphp")
+	ENDIF(EXISTS "/usr/share/hphp/" AND EXISTS "/usr/bin/hphp")
+ELSE("$ENV{HPHP_HOME}" STREQUAL "")
+	FILE(TO_CMAKE_PATH "$ENV{HPHP_HOME}" HPHP_HOME)
+ENDIF("$ENV{HPHP_HOME}" STREQUAL "")
 
 SET(CMAKE_MODULE_PATH "${HPHP_HOME}/CMake" ${CMAKE_MODULE_PATH})
 
