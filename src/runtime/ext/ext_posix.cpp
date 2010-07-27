@@ -139,7 +139,11 @@ static struct limitlist {
   { RLIMIT_CPU,     "cpu" },
   { RLIMIT_FSIZE,   "filesize" },
   { RLIMIT_NOFILE,  "openfiles" },
+#ifdef FREEBSD
+  { RLIMIT_NOFILE,   "openfiles" },
+#else
   { RLIMIT_OFILE,   "openfiles" },
+#endif
   { 0, NULL }
 };
 
@@ -194,7 +198,7 @@ bool f_posix_mknod(CStrRef pathname, int mode, int major /* = 0 */,
 Variant f_posix_times() {
   struct tms t;
   clock_t ticks = times(&t);
-  if (ticks == -1) {
+  if ((int)ticks == -1) {
     return false;
   }
 
@@ -227,7 +231,7 @@ Variant f_posix_uname() {
   ret.set("release",    String(u.release,    CopyString));
   ret.set("version",    String(u.version,    CopyString));
   ret.set("machine",    String(u.machine,    CopyString));
-#if defined(_GNU_SOURCE) && !defined(DARWIN)
+#if defined(_GNU_SOURCE) && !defined(DARWIN) && !defined(FREEBSD)
   ret.set("domainname", String(u.domainname, CopyString));
 #endif
   return ret;

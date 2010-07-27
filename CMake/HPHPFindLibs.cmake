@@ -171,20 +171,21 @@ include_directories(${LDAP_INCLUDE_DIR})
 
 
 FIND_LIBRARY (CRYPT_LIB crypt)
-FIND_LIBRARY (RESOLV_LIB resolv)
 FIND_LIBRARY (RT_LIB rt)
 
 
+if ("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
 FIND_LIBRARY (CAP_LIB cap)
-
 if (NOT CAP_LIB)
   message(FATAL_ERROR "You need to install libcap")
+endif()
+FIND_LIBRARY (DL_LIB dl)
+FIND_LIBRARY (RESOLV_LIB resolv)
 endif()
 
 # potentially make it look in a different directory for the google tools
 FIND_LIBRARY (BFD_LIB bfd)
 FIND_LIBRARY (BINUTIL_LIB iberty)
-FIND_LIBRARY (DL_LIB dl)
 
 if (NOT BFD_LIB)
 	message(FATAL_ERROR "You need to install binutils")
@@ -192,6 +193,12 @@ endif()
 
 if (NOT BINUTIL_LIB)
 	message(FATAL_ERROR "You need to install binutils")
+endif()
+
+# libexecinfo is needed in FreeBSD
+
+if ("${CMAKE_SYSTEM_NAME}" STREQUAL "FreeBSD")
+FIND_LIBRARY (EXECINFO_LIB execinfo)
 endif()
 
 #find_package(BISON REQUIRED)
@@ -212,10 +219,18 @@ macro(hphp_link target)
 	target_link_libraries(${target} ${LIBEVENT_LIB})
 	target_link_libraries(${target} ${CURL_LIBRARIES})
 
+if ("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
 	target_link_libraries(${target} ${CAP_LIB})
+	target_link_libraries(${target} ${RESOLV_LIB})
+	target_link_libraries(${target} ${DL_LIB})
+endif ()
+
+if ("${CMAKE_SYSTEM_NAME}" STREQUAL "FreeBSD")
+	target_link_libraries(${target} ${EXECINFO_LIB})
+endif ()
+
 	target_link_libraries(${target} ${BFD_LIB})
 	target_link_libraries(${target} ${BINUTIL_LIB})
-	target_link_libraries(${target} ${DL_LIB})
 	target_link_libraries(${target} pthread)
 	target_link_libraries(${target} ${TBB_LIBRARIES})
 	target_link_libraries(${target} ${OPENSSL_LIBRARIES})
@@ -233,7 +248,6 @@ macro(hphp_link target)
 	target_link_libraries(${target} ${LIBMEMCACHED_LIBRARIES})
 
 	target_link_libraries(${target} ${CRYPT_LIB})
-	target_link_libraries(${target} ${RESOLV_LIB})
 	target_link_libraries(${target} ${RT_LIB})
 
 	if (USE_TCMALLOC AND HAVE_TCMALLOC)

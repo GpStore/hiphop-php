@@ -295,7 +295,12 @@ int Util::ssystem(const char* command) {
 
 std::string Util::safe_strerror(int errnum) {
   char buf[1024];
+#ifdef FREEBSD
+  strerror_r(errnum, buf, sizeof(buf));
+  return buf;
+#else
   return strerror_r(errnum, buf, sizeof(buf));
+#endif
 }
 
 bool Util::isPowerOfTwo(int value) {

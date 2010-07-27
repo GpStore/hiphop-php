@@ -144,7 +144,7 @@ private:
   int8    m_nNumOfElements;
   int8    m_nListHead;
   int8    m_nListTail;
-  ulong   m_nNextFreeElement;
+  unsigned long   m_nNextFreeElement;
 
   Bucket  m_arBuckets[SARR_TABLE_SIZE];
 

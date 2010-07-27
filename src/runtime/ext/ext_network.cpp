@@ -284,6 +284,12 @@ typedef union {
 } querybuf;
 
 static void php_dns_free_res(struct __res_state res) {
+#ifdef FREEBSD
+if (res._u._ext.ext != NULL) {
+      free(res._u._ext.ext);
+      res._u._ext.ext = NULL;
+}
+#else
   int ns;
   for (ns = 0; ns < MAXNS; ns++) {
     if (res._u._ext.nsaddrs[ns] != NULL) {
@@ -291,6 +297,7 @@ static void php_dns_free_res(struct __res_state res) {
       res._u._ext.nsaddrs[ns] = NULL;
     }
   }
+#endif
 }
 
 static unsigned char *php_parserr(unsigned char *cp, querybuf *answer,

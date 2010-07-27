@@ -14,6 +14,8 @@
    +----------------------------------------------------------------------+
 */
 
+#ifndef FREEBSD
+
 #include "capability.h"
 #include <util/logger.h>
 #include <sys/capability.h>
@@ -115,3 +117,5 @@ bool Capability::ChangeUnixUser(const std::string &username) {
 
 ///////////////////////////////////////////////////////////////////////////////
 }
+
+#endif

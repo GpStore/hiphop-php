@@ -133,7 +133,7 @@ private:
   uint     m_nTableSize;
   uint     m_nTableMask;
   uint     m_nNumOfElements;
-  ulong    m_nNextFreeElement;
+  unsigned long    m_nNextFreeElement;
   Bucket * m_pListHead;
   Bucket * m_pListTail;
   Bucket **m_arBuckets;

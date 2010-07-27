@@ -32,6 +32,10 @@ using namespace std;
 #include <sys/msgbuf.h>
 #define MSGBUF_MTYPE(b) (b)->msg_magic
 #define MSGBUF_MTEXT(b) (b)->msg_bufc
+#elif defined (FREEBSD)
+#include <sys/msgbuf.h>
+#define MSGBUF_MTYPE(b) (b)->msg_magic
+#define MSGBUF_MTEXT(b) (b)->msg_ptr
 #else
 #define MSGBUF_MTYPE(b) (b)->mtype
 #define MSGBUF_MTEXT(b) (b)->mtext
@@ -197,7 +201,7 @@ bool f_msg_receive(CObjRef queue, int64 desiredmsgtype, Variant msgtype,
 
   int64 realflags = 0;
   if (flags != 0) {
-#ifndef MAC_OS_X
+#if !defined(MAC_OS_X) && !defined(FREEBSD)
     if (flags & k_MSG_EXCEPT) realflags |= MSG_EXCEPT;
 #endif
     if (flags & k_MSG_NOERROR) realflags |= MSG_NOERROR;

@@ -22,11 +22,20 @@
 #include <runtime/base/complex_types.h>
 
 #include <arpa/inet.h>
+#ifdef FREEBSD
+#include <sys/endian.h>
+#else
 #include <byteswap.h>
+#endif
 
 #if __BYTE_ORDER == __LITTLE_ENDIAN
+#ifdef FREEBSD
+#define htonll(x) bswap64(x)
+#define ntohll(x) bswap64(x)
+#else
 #define htonll(x) bswap_64(x)
 #define ntohll(x) bswap_64(x)
+#endif
 #else
 #define htonll(x) (x)
 #define ntohll(x) (x)

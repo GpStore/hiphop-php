@@ -21,6 +21,7 @@
 #include <runtime/base/util/string_buffer.h>
 #include <runtime/base/runtime_option.h>
 #include <util/light_process.h>
+#include <sys/signal.h>
 
 using namespace std;
 
