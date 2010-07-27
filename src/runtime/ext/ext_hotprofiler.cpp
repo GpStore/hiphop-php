@@ -20,7 +20,17 @@
 #include <runtime/base/util/request_local.h>
 #include <runtime/base/zend/zend_math.h>
 
+#ifdef FREEBSD
+#include <sys/queue.h>
+#include <sys/param.h>
+#include <sys/cpuset.h>
+#define sched_getaffinity(p1, p2, p3) cpuset_getaffinity(1, 1, p1, p2, p3)
+#define sched_setaffinity(p1, p2, p3) cpuset_setaffinity(1, 1, p1, p2, p3)
+typedef cpuset_t cpu_set_t;
+#else
 #include <sched.h>
+#endif
+
 #include <iostream>
 #include <fstream>
 
@@ -43,16 +53,16 @@ IMPLEMENT_DEFAULT_EXTENSION(hotprofiler);
  * @author cjiang
  */
 static inline uint8 hprof_inline_hash(const char * str) {
-  ulong h = 5381;
+  unsigned long h = 5381;
   uint i = 0;
   uint8 res = 0;
 
   while (*str) {
     h += (h << 5);
-    h ^= (ulong) *str++;
+    h ^= (unsigned long) *str++;
   }
 
-  for (i = 0; i < sizeof(ulong); i++) {
+  for (i = 0; i < sizeof(unsigned long); i++) {
     res += ((uint8 *)&h)[i];
   }
   return res;
@@ -759,7 +769,7 @@ private:
   void sample_stack() {
     char key[512];
     snprintf(key, sizeof(key), "%ld.%06ld",
-             m_last_sample_time.tv_sec, m_last_sample_time.tv_usec);
+             (long int)m_last_sample_time.tv_sec, (long int)m_last_sample_time.tv_usec);
 
     char symbol[5120];
     m_stack->getStack(INT_MAX, symbol, sizeof(symbol));

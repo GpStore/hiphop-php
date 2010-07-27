@@ -21,13 +21,22 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <unistd.h>
+#ifdef FREEBSD
+#include <sys/endian.h>
+#else
 #include <endian.h>
 #include <byteswap.h>
+#endif
 #include <stdexcept>
 
 #if __BYTE_ORDER == __LITTLE_ENDIAN
+#ifdef FREEBSD
+#define htonll(x) bswap64(x)
+#define ntohll(x) bswap64(x)
+#else
 #define htonll(x) bswap_64(x)
 #define ntohll(x) bswap_64(x)
+#endif
 #else
 #define htonll(x) x
 #define ntohll(x) x
@@ -634,7 +643,7 @@ void binary_serialize_spec(CObjRef zthis, PHPOutputTransport& transport,
       throw_tprotocolexception("Bad keytype in TSPEC (expected 'long')", INVALID_DATA);
       return;
     }
-    ulong fieldno = key.toInt64();
+    unsigned long fieldno = key.toInt64();
     Array fieldspec = key_ptr.second().toArray();
 
     // field name

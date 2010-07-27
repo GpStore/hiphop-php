@@ -26,6 +26,10 @@
 #include <runtime/base/file/plain_file.h>
 #include <util/light_process.h>
 #include <runtime/base/util/request_local.h>
+#ifdef FREEBSD
+#include <signal.h>
+#define _NSIG NSIG
+#endif
 
 using namespace std;
 

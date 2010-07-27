@@ -2464,7 +2464,10 @@ int string_crc32(const char *p, int len) {
 // crypt
 
 #include <unistd.h>
+
+#ifndef FREEBSD
 #include <crypt.h>
+#endif
 
 static unsigned char itoa64[] =
   "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";

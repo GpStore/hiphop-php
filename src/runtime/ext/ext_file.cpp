@@ -34,7 +34,11 @@
 #include <glob.h>
 #include <sys/types.h>
 #include <sys/file.h>
+#ifdef FREEBSD
+#include <sys/mount.h>
+#else
 #include <sys/vfs.h>
+#endif
 #include <utime.h>
 #include <grp.h>
 #include <pwd.h>
@@ -1072,9 +1076,16 @@ Variant f_glob(CStrRef pattern, int flags /* = 0 */) {
      * determine the information for each file. I.e., the caller must still be
      * able to filter directories out.
      */
+#ifdef FREEBSD
+    /* GLOB_ONLYDIR is not defined in FreeBSD so use its true value 8192. */
+    if ((flags & 8192) && !f_is_dir(globbuf.gl_pathv[n])) {
+      continue;
+    }
+#else
     if ((flags & GLOB_ONLYDIR) && !f_is_dir(globbuf.gl_pathv[n])) {
       continue;
     }
+#endif
     ret.append(String(globbuf.gl_pathv[n] + cwd_skip, CopyString));
   }
 

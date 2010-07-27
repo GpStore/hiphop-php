@@ -24,6 +24,12 @@
 #define ICONV_SUPPORTS_ERRNO 1
 #include <iconv.h>
 
+#ifdef FREEBSD
+typedef const char ** ICONV_PARA_TYPE;
+#else
+typedef char ** ICONV_PARA_TYPE;
+#endif
+
 namespace HPHP {
 IMPLEMENT_DEFAULT_EXTENSION(iconv);
 ///////////////////////////////////////////////////////////////////////////////
@@ -149,7 +155,7 @@ static php_iconv_err_t _php_iconv_appendl(StringBuffer &d, const char *s,
       out_left = buf_growth - out_left;
       out_p = d.reserve(out_left);
 
-      if (iconv(cd, (char **)&in_p, &in_left, (char **)&out_p, &out_left) ==
+      if (iconv(cd, (ICONV_PARA_TYPE)&in_p, &in_left, (char **)&out_p, &out_left) ==
           (size_t)-1) {
 #if ICONV_SUPPORTS_ERRNO
         switch (errno) {
@@ -236,7 +242,7 @@ static php_iconv_err_t php_iconv_string(const char *in_p, size_t in_len,
   out_buffer = (char *)malloc(out_size + 1);
   out_p = out_buffer;
 
-  result = iconv(cd, (char **)&in_p, &in_size, (char **)&out_p, &out_left);
+  result = iconv(cd, (const char **)&in_p, &in_size, (char **)&out_p, &out_left);
   if (result == (size_t)(-1)) {
     free(out_buffer);
     return PHP_ICONV_ERR_UNKNOWN;
@@ -290,7 +296,7 @@ static php_iconv_err_t php_iconv_string(const char *in_p, size_t in_len,
   out_p = out_buf;
 
   while (in_left > 0) {
-    result = iconv(cd, (char **)&in_p, &in_left, (char **)&out_p, &out_left);
+    result = iconv(cd, (ICONV_PARA_TYPE)&in_p, &in_left, (char **)&out_p, &out_left);
     out_size = bsz - out_left;
     if (result == (size_t)(-1)) {
       if (errno == E2BIG && in_left > 0) {
@@ -390,7 +396,7 @@ static php_iconv_err_t _php_iconv_strlen(unsigned int *pretval,
 
     prev_in_left = in_left;
 
-    if (iconv(cd, (char **)&in_p, &in_left, (char **) &out_p, &out_left)
+    if (iconv(cd, (ICONV_PARA_TYPE)&in_p, &in_left, (char **) &out_p, &out_left)
         == (size_t)-1) {
       if (prev_in_left == in_left) {
         break;
@@ -494,7 +500,7 @@ static php_iconv_err_t _php_iconv_substr(StringBuffer &pretval,
 
     prev_in_left = in_left;
 
-    if (iconv(cd1, (char **)&in_p, &in_left, (char **) &out_p, &out_left) ==
+    if (iconv(cd1, (ICONV_PARA_TYPE)&in_p, &in_left, (char **) &out_p, &out_left) ==
         (size_t)-1) {
       if (prev_in_left == in_left) {
         break;
@@ -616,7 +622,7 @@ static php_iconv_err_t _php_iconv_strpos(unsigned int *pretval,
 
     prev_in_left = in_left;
 
-    if (iconv(cd, (char **)&in_p, &in_left, (char **) &out_p, &out_left) ==
+    if (iconv(cd, (ICONV_PARA_TYPE)&in_p, &in_left, (char **) &out_p, &out_left) ==
         (size_t)-1) {
       if (prev_in_left == in_left) {
 #if ICONV_SUPPORTS_ERRNO
@@ -1405,7 +1411,7 @@ Variant f_iconv_mime_encode(CStrRef field_name, CStrRef field_value,
 
           out_left = out_size - out_reserved;
 
-          if (iconv(cd, (char **)&in_p, &in_left,
+          if (iconv(cd, (ICONV_PARA_TYPE)&in_p, &in_left,
                     (char **)&out_p, &out_left) == (size_t)-1) {
 #if ICONV_SUPPORTS_ERRNO
             switch (errno) {
@@ -1500,7 +1506,7 @@ Variant f_iconv_mime_encode(CStrRef field_name, CStrRef field_value,
           out_p = buf;
           out_left = out_size;
 
-          if (iconv(cd, (char **)&in_p, &in_left,
+          if (iconv(cd, (ICONV_PARA_TYPE)&in_p, &in_left,
                     (char **)&out_p, &out_left) == (size_t)-1) {
 #if ICONV_SUPPORTS_ERRNO
             switch (errno) {

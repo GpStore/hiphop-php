@@ -18,6 +18,10 @@ endif()
 # eable the OSS options if we have any
 add_definitions(-DHPHP_OSS=1)
 
+if ("${CMAKE_SYSTEM_NAME}" STREQUAL "FreeBSD")
+  add_definitions(-DFREEBSD)
+endif()
+
 set(CMAKE_C_FLAGS "-w -fPIC")
 set(CMAKE_CXX_FLAGS "-fPIC -fno-omit-frame-pointer -ftemplate-depth-60 -Wall -Woverloaded-virtual -Wno-deprecated -Wno-parentheses -Wno-strict-aliasing -Wno-write-strings -Wno-invalid-offsetof")
 

@@ -14,6 +14,8 @@
    +----------------------------------------------------------------------+
 */
 
+#ifndef FREEBSD
+
 #ifndef __CAPABILITY_H__
 #define __CAPABILITY_H__
 
@@ -38,3 +40,5 @@ public:
 }
 
 #endif // __CAPABILITY_H__
+
+#endif

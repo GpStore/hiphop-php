@@ -19,7 +19,9 @@
 
 #include <runtime/base/server/transport.h>
 #include <evhttp.h>
+#ifdef EVHTTP_READ_LIMITING
 #include <sys/epoll.h>
+#endif
 
 namespace HPHP {
 ///////////////////////////////////////////////////////////////////////////////
@@ -54,8 +56,11 @@ public:
 private:
   LibEventServer *m_server;
   evhttp_request *m_request;
+
   int m_epollfd;
+#ifdef EVHTTP_READ_LIMITING
   struct epoll_event m_epollevent;
+#endif
   int m_workerId;
   std::string m_url;
   std::string m_remote_host;
