@@ -286,7 +286,7 @@ public:
   }
 };
 
-DefaultRuntimeOptionLoader DefaultRuntimeOptionLoader::Loader;
+//DefaultRuntimeOptionLoader DefaultRuntimeOptionLoader::Loader;
 
 ///////////////////////////////////////////////////////////////////////////////
 

@@ -28,7 +28,7 @@
 
 using namespace std;
 
-#ifdef MAC_OS_X
+#ifdef DARWIN 
 #include <sys/msgbuf.h>
 #define MSGBUF_MTYPE(b) (b)->msg_magic
 #define MSGBUF_MTEXT(b) (b)->msg_bufc
@@ -201,7 +201,7 @@ bool f_msg_receive(CObjRef queue, int64 desiredmsgtype, Variant msgtype,
 
   int64 realflags = 0;
   if (flags != 0) {
-#if !defined(MAC_OS_X) && !defined(FREEBSD)
+#if !defined(DARWIN) && !defined(FREEBSD)
     if (flags & k_MSG_EXCEPT) realflags |= MSG_EXCEPT;
 #endif
     if (flags & k_MSG_NOERROR) realflags |= MSG_NOERROR;

@@ -28,6 +28,9 @@
 #include <arpa/nameser.h>
 #include <resolv.h>
 #include <util/network.h>
+#ifdef DARWIN
+#include <arpa/nameser_compat.h>
+#endif
 
 #define MAXPACKET  8192 /* max packet size used internally by BIND */
 #define DNS_T_A		1
@@ -284,7 +287,7 @@ typedef union {
 } querybuf;
 
 static void php_dns_free_res(struct __res_state res) {
-#ifdef FREEBSD
+#if defined(FREEBSD) || defined(DARWIN)
 if (res._u._ext.ext != NULL) {
       free(res._u._ext.ext);
       res._u._ext.ext = NULL;

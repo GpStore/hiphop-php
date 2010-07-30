@@ -17,12 +17,20 @@
 #ifndef __COMPATIBILITY_H__
 #define __COMPATIBILITY_H__
 
-namespace HPHP { namespace Compatibility {
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+namespace HPHP { 
 ///////////////////////////////////////////////////////////////////////////////
 
 #define PHP_DIR_SEPARATOR '/'
 
+#ifdef DARWIN
+char *strndup (char const *, size_t);
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////
-}}
+}
 
 #endif // __COMPATIBILITY_H__

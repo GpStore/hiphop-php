@@ -39,7 +39,11 @@ public:
 
 private:
   bool m_profiling;
+#ifdef DARWIN
+  timeval m_lockTime;
+#else
   timespec m_lockTime;
+#endif
 };
 
 ///////////////////////////////////////////////////////////////////////////////

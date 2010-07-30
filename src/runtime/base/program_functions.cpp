@@ -456,7 +456,7 @@ static int start_server(const std::string &username) {
   AdminRequestHandler::GetAccessLog().init
     (RuntimeOption::AdminLogFormat, RuntimeOption::AdminLogFile);
 
-#ifndef FREEBSD
+#if !defined(FREEBSD) && !defined(DARWIN)
   if (!username.empty()) {
     Capability::ChangeUnixUser(username);
     LightProcess::ChangeUser(username);

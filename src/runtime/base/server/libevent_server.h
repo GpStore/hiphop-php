@@ -39,7 +39,12 @@ public:
   evhttp_request *request;
 
 private:
+#ifdef DARWIN
+  timeval start;
+#else
   timespec start;
+#endif
+
 };
 
 /**

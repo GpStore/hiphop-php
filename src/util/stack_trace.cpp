@@ -20,10 +20,8 @@
 #include "lock.h"
 #include "util.h"
 
-#ifndef MAC_OS_X
 #include <execinfo.h>
 #include <bfd.h>
-#endif
 
 #include <signal.h>
 #include <sys/types.h>
@@ -32,6 +30,13 @@
 
 using namespace std;
 using namespace boost;
+
+#ifdef DARWIN
+#define dprintf(fd, ...) \
+{ FILE *fp = fdopen(fd, "a"); \
+  if (fp) fprintf(fp, __VA_ARGS__); \
+  fclose(fp);}
+#endif
 
 namespace HPHP {
 
@@ -125,9 +130,7 @@ void StackTraceBase::InstallReportOnErrors() {
 // constructor and destructor
 
 StackTraceBase::StackTraceBase() {
-#ifndef MAC_OS_X
   bfd_init();
-#endif
 }
 
 StackTrace::StackTrace(const StackTrace &bt) {
@@ -168,9 +171,7 @@ StackTrace::StackTrace(const char *hexEncoded) {
 void StackTrace::create() {
   void *btpointers[MAXFRAME];
   int framecount = 0;
-#ifndef MAC_OS_X
   framecount = backtrace(btpointers, MAXFRAME);
-#endif
   if (framecount <= 0 || framecount > (signed) MAXFRAME) {
     m_bt_pointers.clear();
     return;
@@ -183,9 +184,7 @@ void StackTrace::create() {
 
 void StackTraceNoHeap::create() {
   int unsigned framecount = 0;
-#ifndef MAC_OS_X
   framecount = backtrace(m_btpointers, MAXFRAME);
-#endif
   if (framecount <= 0 || framecount > MAXFRAME) {
     m_btpointers_cnt = 0;
     return;
@@ -383,8 +382,6 @@ bool StackTraceNoHeap::Translate(FILE *fp, void *frame, int frame_num) {
 ///////////////////////////////////////////////////////////////////////////////
 // copied and re-factored from addr2line
 
-#ifndef MAC_OS_X
-
 static void find_address_in_section(bfd *abfd, asection *section, void *data) {
   addr2line_data *adata = reinterpret_cast<addr2line_data*>(data);
 
@@ -492,11 +489,8 @@ static bfd_cache_ptr get_bfd_cache(const char *filename) {
   return p;
 }
 
-#endif
-
 bool StackTraceBase::Addr2line(const char *filename, const char *address,
                            Frame *frame, void *adata) {
-#ifndef MAC_OS_X
   Lock lock(s_bfdMutex);
   addr2line_data *data = reinterpret_cast<addr2line_data*>(adata);
   bfd_cache_ptr p = get_bfd_cache(filename);
@@ -511,9 +505,6 @@ bool StackTraceBase::Addr2line(const char *filename, const char *address,
     frame->lineno = data->line;
   }
   return ret;
-#else
-  return false;
-#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -523,13 +514,9 @@ bool StackTraceBase::Addr2line(const char *filename, const char *address,
 #define DMGL_ANSI     (1 << 1)  /* Include const, volatile, etc */
 #define DMGL_VERBOSE  (1 << 3)  /* Include implementation details. */
 
-#ifndef MAC_OS_X
-
 extern "C" {
   extern char *cplus_demangle (const char *mangled, int options);
 }
-
-#endif
 
 std::string StackTrace::Demangle(const char *mangled) {
   assert(mangled);
@@ -537,7 +524,6 @@ std::string StackTrace::Demangle(const char *mangled) {
     return "";
   }
 
-#ifndef MAC_OS_X
   size_t skip_first = 0;
   if (mangled[0] == '.' || mangled[0] == '$') ++skip_first;
   //if (mangled[skip_first] == '_') ++skip_first;
@@ -550,9 +536,6 @@ std::string StackTrace::Demangle(const char *mangled) {
   ret += result;
   free (result);
   return ret;
-#else
-  return mangled;
-#endif
 }
 
 void StackTraceNoHeap::Demangle(FILE *f, const char *mangled) {
@@ -562,7 +545,6 @@ void StackTraceNoHeap::Demangle(FILE *f, const char *mangled) {
     return ;
   }
 
-#ifndef MAC_OS_X
   size_t skip_first = 0;
   if (mangled[0] == '.' || mangled[0] == '$') ++skip_first;
   //if (mangled[skip_first] == '_') ++skip_first;
@@ -574,10 +556,6 @@ void StackTraceNoHeap::Demangle(FILE *f, const char *mangled) {
   }
   fprintf (f, "%s%s", mangled[0]=='.' ? "." : "", result);
   return ;
-#else
-  fprintf (f, "%s", mangled);
-  return ;
-#endif
 }
 
 

@@ -31,6 +31,10 @@ typedef cpuset_t cpu_set_t;
 #include <sched.h>
 #endif
 
+#ifdef DARWIN
+#undef HOTPROFILER
+#endif
+
 #include <iostream>
 #include <fstream>
 
@@ -39,7 +43,9 @@ typedef cpuset_t cpu_set_t;
 #define HP_STACK_DELIM_LEN    (sizeof(HP_STACK_DELIM) - 1)
 
 namespace HPHP {
+#ifndef DARWIN
 IMPLEMENT_DEFAULT_EXTENSION(hotprofiler);
+
 ///////////////////////////////////////////////////////////////////////////////
 // helpers
 
@@ -875,6 +881,7 @@ private:
 IMPLEMENT_STATIC_REQUEST_LOCAL(ProfilerFactory, s_factory);
 #endif
 
+#endif
 ///////////////////////////////////////////////////////////////////////////////
 // main functions
 
@@ -951,11 +958,19 @@ Variant f_xhprof_sample_disable() {
 
 ///////////////////////////////////////////////////////////////////////////////
 // constants
+#ifndef DARWIN
 const int64 k_XHPROF_FLAGS_NO_BUILTINS = HierarchicalProfiler::TrackBuiltins;
 const int64 k_XHPROF_FLAGS_CPU = HierarchicalProfiler::TrackCPU;
 const int64 k_XHPROF_FLAGS_MEMORY = HierarchicalProfiler::TrackMemory;
 const int64 k_XHPROF_FLAGS_VTSC = HierarchicalProfiler::TrackVtsc;
+#else
+const int64 k_XHPROF_FLAGS_NO_BUILTINS =  1;
+const int64 k_XHPROF_FLAGS_CPU         =  2;
+const int64 k_XHPROF_FLAGS_MEMORY      =  4;
+const int64 k_XHPROF_FLAGS_VTSC        =  8;
+#endif
 
+#ifndef DARWIN
 ///////////////////////////////////////////////////////////////////////////////
 // injected code
 
@@ -973,6 +988,6 @@ ProfilerInjection::~ProfilerInjection() {
     profiler->endFrame();
   }
 }
-
+#endif
 ///////////////////////////////////////////////////////////////////////////////
 }

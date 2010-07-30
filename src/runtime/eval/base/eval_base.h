@@ -23,6 +23,12 @@
 #include <runtime/eval/base/ast_ptr.h>
 #include <runtime/eval/runtime/eval_frame_injection.h>
 
+#ifdef DARWIN
+#ifdef isset
+#undef isset
+#endif
+#endif
+
 namespace HPHP {
 namespace Eval {
 ///////////////////////////////////////////////////////////////////////////////

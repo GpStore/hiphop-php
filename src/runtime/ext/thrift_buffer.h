@@ -25,7 +25,13 @@
 #ifdef FREEBSD
 #include <sys/endian.h>
 #else
+#ifdef DARWIN
+#include <machine/endian.h>
+#include <libkern/OSByteOrder.h>
+#else
+#include <endian.h>
 #include <byteswap.h>
+#endif
 #endif
 
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -33,13 +39,19 @@
 #define htonll(x) bswap64(x)
 #define ntohll(x) bswap64(x)
 #else
+#ifdef DARWIN
+#define htonll(x) OSSwapInt64(x)
+#define ntohll(x) OSSwapInt64(x)
+#else
 #define htonll(x) bswap_64(x)
 #define ntohll(x) bswap_64(x)
 #endif
-#else
-#define htonll(x) (x)
-#define ntohll(x) (x)
 #endif
+#else
+#define htonll(x) x
+#define ntohll(x) x
+#endif
+
 
 namespace HPHP {
 ///////////////////////////////////////////////////////////////////////////////

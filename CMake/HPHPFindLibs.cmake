@@ -169,16 +169,23 @@ include_directories(${ONIGURUMA_INCLUDE_DIRS})
 find_package(Ldap REQUIRED)
 include_directories(${LDAP_INCLUDE_DIR})
 
-
+if (LINUX OR FREEBSD)
 FIND_LIBRARY (CRYPT_LIB crypt)
 FIND_LIBRARY (RT_LIB rt)
+elseif (DARWIN)
+FIND_LIBRARY (CRYPTO_LIB crypto)
+FIND_LIBRARY (ICONV_LIB iconv)
+endif()
 
 
-if ("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
+if (LINUX)
 FIND_LIBRARY (CAP_LIB cap)
 if (NOT CAP_LIB)
   message(FATAL_ERROR "You need to install libcap")
 endif()
+endif()
+
+if (LINUX OR DARWIN)
 FIND_LIBRARY (DL_LIB dl)
 FIND_LIBRARY (RESOLV_LIB resolv)
 endif()
@@ -197,7 +204,7 @@ endif()
 
 # libexecinfo is needed in FreeBSD
 
-if ("${CMAKE_SYSTEM_NAME}" STREQUAL "FreeBSD")
+if (FREEBSD)
 FIND_LIBRARY (EXECINFO_LIB execinfo)
 endif()
 
@@ -219,13 +226,16 @@ macro(hphp_link target)
 	target_link_libraries(${target} ${LIBEVENT_LIB})
 	target_link_libraries(${target} ${CURL_LIBRARIES})
 
-if ("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
+if(LINUX)
 	target_link_libraries(${target} ${CAP_LIB})
-	target_link_libraries(${target} ${RESOLV_LIB})
-	target_link_libraries(${target} ${DL_LIB})
 endif ()
 
-if ("${CMAKE_SYSTEM_NAME}" STREQUAL "FreeBSD")
+if(LINUX OR DARWIN)
+	target_link_libraries(${target} ${RESOLV_LIB})
+	target_link_libraries(${target} ${DL_LIB})
+endif()
+
+if (FREEBSD)
 	target_link_libraries(${target} ${EXECINFO_LIB})
 endif ()
 
@@ -247,8 +257,13 @@ endif ()
 
 	target_link_libraries(${target} ${LIBMEMCACHED_LIBRARIES})
 
-	target_link_libraries(${target} ${CRYPT_LIB})
-	target_link_libraries(${target} ${RT_LIB})
+  if (LINUX OR FREEBSD)
+	  target_link_libraries(${target} ${CRYPT_LIB})
+	  target_link_libraries(${target} ${RT_LIB})
+  elseif (DARWIN)
+	  target_link_libraries(${target} ${CRYPTO_LIB})
+	  target_link_libraries(${target} ${ICONV_LIB})
+  endif()
 
 	if (USE_TCMALLOC AND HAVE_TCMALLOC)
 		target_link_libraries(${target} ${GOOGLE_TCMALLOC_LIB})

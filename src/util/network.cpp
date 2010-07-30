@@ -48,6 +48,16 @@ std::string Util::safe_inet_ntoa(struct in_addr &in) {
 }
 
 bool Util::safe_gethostbyname(const char *address, HostEnt &result) {
+#ifdef DARWIN
+  struct hostent *hp = gethostbyname(address);
+  if (!hp)
+    return false;
+
+  result.hostbuf = *hp;
+  freehostent (hp);
+  return true;
+
+#else
   struct hostent *hp;
   int res;
 
@@ -59,6 +69,7 @@ bool Util::safe_gethostbyname(const char *address, HostEnt &result) {
     result.tmphstbuf = (char*)realloc(result.tmphstbuf, hstbuflen);
   }
   return !res && hp;
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////

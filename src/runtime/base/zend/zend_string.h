@@ -325,7 +325,7 @@ void string_charmask(const char *input, int len, char *mask);
 ///////////////////////////////////////////////////////////////////////////////
 // mac doesn't have memrchr
 
-#ifdef MAC_OS_X
+#ifdef DARWIN 
 
  void *memrchr(const void *s, int c, size_t n);
 

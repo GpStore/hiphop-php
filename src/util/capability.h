@@ -14,7 +14,7 @@
    +----------------------------------------------------------------------+
 */
 
-#ifndef FREEBSD
+#if !defined(FREEBSD) && !defined(DARWIN)
 
 #ifndef __CAPABILITY_H__
 #define __CAPABILITY_H__

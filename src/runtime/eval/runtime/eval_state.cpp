@@ -271,8 +271,8 @@ bool RequestEvalState::includeFile(Variant &res, CStrRef path, bool once,
     }
     efile = it->second;
   } else {
-    char *rpath = realpath(spath.c_str(), 0);
-    if (rpath && rpath != spath) {
+    char *rpath = (char *) malloc(PATH_MAX);
+    if (rpath && realpath(spath.c_str(), rpath) && rpath != spath) {
       it = self->m_evaledFiles.find(rpath);
       if (it != self->m_evaledFiles.end()) {
         self->m_evaledFiles[spath] = efile = it->second;
@@ -284,7 +284,7 @@ bool RequestEvalState::includeFile(Variant &res, CStrRef path, bool once,
         }
       }
     } else {
-      free(rpath);
+      if (rpath) free(rpath);
       rpath = 0;
     }
     if (!efile) {
@@ -297,7 +297,7 @@ bool RequestEvalState::includeFile(Variant &res, CStrRef path, bool once,
         }
       }
     }
-    free(rpath);
+    if (rpath) free(rpath);
   }
   if (efile) {
     res = efile->eval(variables);

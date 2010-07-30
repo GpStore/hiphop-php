@@ -139,7 +139,7 @@ static struct limitlist {
   { RLIMIT_CPU,     "cpu" },
   { RLIMIT_FSIZE,   "filesize" },
   { RLIMIT_NOFILE,  "openfiles" },
-#ifdef FREEBSD
+#if defined(FREEBSD) || defined(DARWIN)
   { RLIMIT_NOFILE,   "openfiles" },
 #else
   { RLIMIT_OFILE,   "openfiles" },

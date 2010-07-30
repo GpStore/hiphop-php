@@ -32,6 +32,23 @@
 
 #define PHP_QPRINT_MAXL 75
 
+#ifdef DARWIN
+#ifndef isnan
+#define isnan(x)  \
+  ( sizeof (x) == sizeof(float )  ? __inline_isnanf((float)(x)) \
+  : sizeof (x) == sizeof(double)  ? __inline_isnand((double)(x))  \
+  : __inline_isnan ((long double)(x)))
+#endif
+
+#ifndef isinf
+#define isinf(x)  \
+  ( sizeof (x) == sizeof(float )  ? __inline_isinff((float)(x)) \
+  : sizeof (x) == sizeof(double)  ? __inline_isinfd((double)(x))  \
+  : __inline_isinf ((long double)(x)))
+#endif
+
+#endif
+
 namespace HPHP {
 ///////////////////////////////////////////////////////////////////////////////
 // helpers
@@ -2465,7 +2482,7 @@ int string_crc32(const char *p, int len) {
 
 #include <unistd.h>
 
-#ifndef FREEBSD
+#if !defined(FREEBSD) && !defined(DARWIN)
 #include <crypt.h>
 #endif
 
@@ -3516,7 +3533,7 @@ char *string_convert_hebrew_string(const char *str, int &str_len,
   return broken_str;
 }
 
-#ifdef MAC_OS_X
+#ifdef DARWIN 
 
   void *memrchr(const void *s, int c, size_t n) {
     for (const char *p = (const char *)s + n - 1; p >= s; p--) {

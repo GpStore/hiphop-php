@@ -184,20 +184,6 @@ CPPFLAGS += -MMD -fPIC
 # Include frame pointers to make it easier to generate callgraphs in oprofile
 CPPFLAGS += -fno-omit-frame-pointer
 
-ifdef MAC_OS_X
-
-CPPFLAGS += \
-  -I /usr/local/include \
-  -I /usr/local/include/boost-1_37 \
-  -I /usr/local/mysql/include \
-
-CXXFLAGS += \
-  -DMAC_OS_X \
-  -D_GNU_SOURCE \
-  -ftemplate-depth-60 \
-
-else
-
 CPPFLAGS += \
   -isystem $(EXT_DIR)/binutils \
   -isystem $(EXT_DIR)/pcre/include \
@@ -244,8 +230,6 @@ endif
 
 CPPFLAGS += -D_GNU_SOURCE -D_REENTRANT=1 -D_PTHREADS=1 -pthread
 CXXFLAGS += -ftemplate-depth-60
-
-endif
 
 ifndef NO_WALL
 CXXFLAGS += -Wall -Woverloaded-virtual -Wno-deprecated -Wno-strict-aliasing -Wno-write-strings -Wno-invalid-offsetof
@@ -401,12 +385,8 @@ endif
 # These have to be libraries that nearly ALL programs need to link with. Do
 # NOT add something that not everyone wants.
 
-ifdef MAC_OS_X
-LINK_LIBS = -lpthread -lstdc++ -lz -ldl
-else
 BFD_LIBS = -L$(EXT_DIR)/binutils/ -lbfd -liberty -ldl -lz
 LINK_LIBS = -lpthread $(BFD_LIBS) -lrt -lstdc++ -lresolv -lcap
-endif
 
 # 2. Common Libraries
 #
@@ -425,12 +405,6 @@ BOOST_LIBS = \
 	$(EXT_DIR)/boost/lib/libboost_system-gcc40-mt.a \
 
 endif
-
-ifdef MAC_OS_X
-
-MYSQL_LIBS = -L/usr/local/mysql/lib -lmysqlclient
-
-else
 
 MYSQL_LIBS = $(EXT_DIR)/mysql/lib/mysql/libmysqlclient_r.a \
 	-lssl -lcrypto -lcrypt
@@ -506,8 +480,6 @@ ICU_LIBS = \
 	$(EXT_DIR)/icu/lib/libsicui18n.a \
 	$(EXT_DIR)/icu/lib/libsicuuc.a \
 	$(EXT_DIR)/icu/lib/libsicudata.a \
-
-endif
 
 XHP_LIBS = $(EXT_DIR)/xhp/lib/libxhp.a
 

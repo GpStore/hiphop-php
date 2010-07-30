@@ -18,6 +18,17 @@
 
 namespace HPHP {
 ///////////////////////////////////////////////////////////////////////////////
+#ifdef DARWIN
+char *strndup (char const *source, size_t length) {
+  size_t len = strlen(source);
+  len = (len>length)?length:len;
+  char *dest;
+  if (!(dest=(char *)malloc(len+1))) return NULL;
+  dest[len] = '\0';
+  return (char *)memcpy(dest, source, len);
+}
+#endif
+
 
 ///////////////////////////////////////////////////////////////////////////////
 }

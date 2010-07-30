@@ -26,7 +26,7 @@
 #include <runtime/base/file/plain_file.h>
 #include <util/light_process.h>
 #include <runtime/base/util/request_local.h>
-#ifdef FREEBSD
+#if defined(FREEBSD) || defined(DARWIN)
 #include <signal.h>
 #define _NSIG NSIG
 #endif

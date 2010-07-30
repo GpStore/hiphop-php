@@ -14,7 +14,7 @@
    +----------------------------------------------------------------------+
 */
 
-#ifndef FREEBSD
+#if !defined(FREEBSD) && !defined(DARWIN)
 
 #include "capability.h"
 #include <util/logger.h>

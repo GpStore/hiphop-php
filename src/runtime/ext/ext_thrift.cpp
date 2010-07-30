@@ -24,8 +24,13 @@
 #ifdef FREEBSD
 #include <sys/endian.h>
 #else
+#ifdef DARWIN
+#include <machine/endian.h>
+#include <libkern/OSByteOrder.h>
+#else
 #include <endian.h>
 #include <byteswap.h>
+#endif
 #endif
 #include <stdexcept>
 
@@ -34,8 +39,13 @@
 #define htonll(x) bswap64(x)
 #define ntohll(x) bswap64(x)
 #else
+#ifdef DARWIN
+#define htonll(x) OSSwapInt64(x)
+#define ntohll(x) OSSwapInt64(x)
+#else
 #define htonll(x) bswap_64(x)
 #define ntohll(x) bswap_64(x)
+#endif
 #endif
 #else
 #define htonll(x) x

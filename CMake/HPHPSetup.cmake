@@ -6,6 +6,31 @@ if(NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE "Release")
 endif()
 
+if("${CMAKE_SYSTEM_NAME}" STREQUAL "FreeBSD")
+  set(FREEBSD 1)
+else()
+  set(FREEBSD 0)
+endif()
+
+if("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
+  set(DARWIN 1)
+else()
+  set(DARWIN 0)
+endif()
+
+if("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
+  set(LINUX 1)
+else()
+  set(LINUX 0)
+endif()
+
+if(DARWIN)
+if(EXISTS "/opt/local/var/macports/")
+  set(CMAKE_INCLUDE_PATH "/opt/local/include" "/opt/local/include/mysql5" ${CMAKE_INCLUDE_PATH})
+  set(CMAKE_LIBRARY_PATH "/opt/local/lib" "/opt/local/lib/mysql5/mysql" ${CMAKE_LIBRARY_PATH})
+endif()
+endif()
+
 include(HPHPFunctions)
 include(HPHPFindLibs)
 
@@ -18,8 +43,12 @@ endif()
 # eable the OSS options if we have any
 add_definitions(-DHPHP_OSS=1)
 
-if ("${CMAKE_SYSTEM_NAME}" STREQUAL "FreeBSD")
+if (FREEBSD)
   add_definitions(-DFREEBSD)
+endif()
+
+if (DARWIN)
+  add_definitions(-DDARWIN)
 endif()
 
 set(CMAKE_C_FLAGS "-w -fPIC")

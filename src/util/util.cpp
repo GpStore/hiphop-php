@@ -295,7 +295,7 @@ int Util::ssystem(const char* command) {
 
 std::string Util::safe_strerror(int errnum) {
   char buf[1024];
-#ifdef FREEBSD
+#if defined(FREEBSD) || defined(DARWIN)
   strerror_r(errnum, buf, sizeof(buf));
   return buf;
 #else

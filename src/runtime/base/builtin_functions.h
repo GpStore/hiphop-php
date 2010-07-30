@@ -28,6 +28,12 @@
 #include <util/case_insensitive.h>
 #include <runtime/base/tainting.h>
 
+#ifdef DARWIN
+#ifdef isset
+#undef isset
+#endif
+#endif
+
 /**
  * This file contains a list of functions that HPHP generates to wrap around
  * different expressions to maintain semantics. If we read through all types of
