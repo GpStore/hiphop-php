@@ -535,13 +535,11 @@ static int run_program(ProgramOptions &po, int argc, char **argv,
     } else {
       began = false;
     }
-    if (!po.file.empty()) {
-      ret = -1;
-      bool error; string errorMsg;
-      if (hphp_invoke(g_context.get(), po.file.c_str(),
-                      false, Array(), null, "", "", "", error, errorMsg)) {
-        ret = ExitException::ExitCode;
-      }
+    ret = -1;
+    bool error; string errorMsg;
+    if (hphp_invoke(g_context.get(), po.file.c_str(),
+                    false, Array(), null, "", "", "", error, errorMsg)) {
+      ret = ExitException::ExitCode;
     }
     execute_command_line_end(po.xhprofFlags, true, argv[0]);
   }
