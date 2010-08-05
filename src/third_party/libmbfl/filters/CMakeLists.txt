@@ -2,6 +2,7 @@ set(unicode_files 8859-1.TXT 8859-2.TXT 8859-3.TXT 8859-4.TXT 8859-5.TXT 8859-6.
 	8859-7.TXT 8859-8.TXT 8859-9.TXT 8859-10.TXT 8859-11.TXT
 	8859-13.TXT 8859-14.TXT 8859-15.TXT 8859-16.TXT)
 
+if (DL_MBFL)
 FIND_PROGRAM(AWK_EXECUTABLE NAMES gawk awk)
 
 foreach(unicode_file ${unicode_files})
@@ -23,6 +24,7 @@ foreach(unicode_file ${unicode_files})
 						OUTPUT_FILE unicode_table_${variable_name}.h
 					)
 endforeach()
+endif()
 
 SET(_mbfl_filters_files mbfilter_cp936.c mbfilter_hz.c mbfilter_euc_tw.c mbfilter_big5.c
 mbfilter_euc_jp.c mbfilter_jis.c mbfilter_iso8859_1.c mbfilter_iso8859_2.c
