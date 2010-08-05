@@ -119,4 +119,6 @@ add_subdirectory(compiler)
 
 add_subdirectory(hphp)
 
+add_subdirectory(hphpi)
+
 add_subdirectory(test)
