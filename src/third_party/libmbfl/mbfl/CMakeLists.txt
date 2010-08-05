@@ -1,4 +1,5 @@
 
+if (DL_MBFL)
 FIND_PROGRAM(AWK_EXECUTABLE NAMES gawk awk)
 if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/EastAsianWidth.txt")
 	message(STATUS "Downloading EastAsianWidth.txt")
@@ -9,6 +10,7 @@ if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/EastAsianWidth.txt")
 	  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 	  OUTPUT_FILE eaw_table.h
   )
+endif()
 endif()
 
 SET(mbfl_files mbfilter.c mbfl_string.c mbfl_language.c mbfl_encoding.c mbfl_convert.c
