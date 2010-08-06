@@ -59,8 +59,16 @@ namespace HPHP {
 ///////////////////////////////////////////////////////////////////////////////
 // system includes
 
+#if defined(__WORDSIZE)
 #if __WORDSIZE == 64
 #define WORDSIZE_IS_64
+#endif
+#elif defined(LONG_BIT)
+#if LONG_BIT == 64
+#define WORDSIZE_IS_64
+#endif
+#else
+#error Cannot determine word size.
 #endif
 
 typedef unsigned char uchar;
