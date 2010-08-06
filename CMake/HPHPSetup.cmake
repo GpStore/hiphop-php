@@ -27,7 +27,7 @@ endif()
 if(DARWIN)
 if(EXISTS "/opt/local/var/macports/")
   set(CMAKE_INCLUDE_PATH "/opt/local/include" "/opt/local/include/mysql5" ${CMAKE_INCLUDE_PATH})
-  set(CMAKE_LIBRARY_PATH "/opt/local/lib" "/opt/local/lib/mysql5/mysql" ${CMAKE_LIBRARY_PATH})
+  set(CMAKE_LIBRARY_PATH "/opt/local/lib" "/opt/local/lib/x86_64" "/opt/local/lib/mysql5/mysql" ${CMAKE_LIBRARY_PATH})
 endif()
 endif()
 
