@@ -33,3 +33,7 @@ endforeach()
 # install license and readme files
 install(FILES LICENSE.PHP LICENSE.ZEND README.md 
 	DESTINATION share/hphp)
+
+# enable CPack
+include(CPack)
+
