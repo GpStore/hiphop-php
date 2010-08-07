@@ -84,5 +84,5 @@ IF(LibEvent_FOUND)
 	target_link_libraries(afdt ${LIBEVENT_LIB})
 ENDIF()
 
-INSTALL(TARGETS afdt DESTINATION lib)
-INSTALL(FILES src/afdt.h DESTINATION include)
+#INSTALL(TARGETS afdt DESTINATION lib)
+#INSTALL(FILES src/afdt.h DESTINATION include)

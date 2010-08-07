@@ -1,11 +1,16 @@
 #!/bin/sh
 
 if [ "$1" = '--help' ] || [ "$1" = '-h' ]; then
-	echo 'usage: ./configure -Dvariable=argument ...\n'
-	echo 'Variables: '
-	echo '  CMAKE_BUILD_TYPE=Debug|Release        Sets build type (default Relase).'
-
-	exit 2
+  echo 'Usage: ./configure --prefix=/path/to/install -Dvariable=argument ...\n'
+  echo 'Variables: '
+  echo ' CMAKE_BUILD_TYPE=Debug|Release Sets build type (default Relase).'
+  exit 2
 fi
 
-cmake "$@" .
+if echo "$@" | grep "^--prefix=" > /dev/null 2> /dev/null; then
+  varlist=`echo $@ | sed "s/--prefix=\([^ ]*\)/-DCMAKE_INSTALL_PREFIX=\1 /"`
+else
+  varlist=$@
+fi
+
+cmake "$varlist" .
