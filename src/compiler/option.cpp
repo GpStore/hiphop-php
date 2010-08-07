@@ -195,9 +195,13 @@ std::string Option::GetSystemRoot() {
   if (SystemRoot.empty()) {
     const char *home = getenv("HPHP_HOME");
     if (!home || !*home) {
+#ifdef HPHP_INSTALL_DIR
+      SystemRoot = HPHP_INSTALL_DIR;
+#else
       throw Exception("Environment variable HPHP_HOME is not set.");
-    }
-    SystemRoot = home;
+#endif
+    } else
+      SystemRoot = home;
     SystemRoot += "/src";
   }
   return SystemRoot;
