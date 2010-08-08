@@ -414,7 +414,7 @@ void LightProcess::runShadow(int fdin, int fdout) {
 }
 
 int LightProcess::GetId() {
-  return (int)pthread_self() % g_procs.size();
+  return (long int)pthread_self() % g_procs.size();
 }
 
 FILE *LightProcess::popen(const char *cmd, const char *type,
