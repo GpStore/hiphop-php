@@ -16,119 +16,12 @@
 */
 
 #include <runtime/ext/ext_bzip2.h>
-#include <stdio.h>
-#include <bzlib.h>
+#include <runtime/base/file/bzip2_file.h>
 
 namespace HPHP {
 IMPLEMENT_DEFAULT_EXTENSION(bz2);
 ///////////////////////////////////////////////////////////////////////////////
-// BZ2File class 
 
-class BZ2File : public File {
-public:
-  DECLARE_OBJECT_ALLOCATION(BZ2File);
-
-  const char *o_getClassName() const { return "BZ2File";}
-
-  BZ2File();
-  virtual ~BZ2File();
-
-  bool open(CStrRef filename, CStrRef mode); 
-  bool close(); 
-  int64 errnu(); 
-  String errstr(); 
-  Variant error(); 
-  virtual bool flush();  
-  virtual int64 readImpl(char * buf, int64 length); 
-  virtual int64 writeImpl(const char * buf, int64 length);
-  virtual bool eof();
-
-private:
-  BZFILE * m_bzFile;
-  PlainFile * m_innerFile;
-  bool m_eof;
-  bool closeImpl(); 
-};
-
-IMPLEMENT_OBJECT_ALLOCATION(BZ2File);
-
-BZ2File::BZ2File(): m_bzFile(NULL), m_eof(false) {
-  m_innerFile = NEW(PlainFile)();
-  m_innerFile->unregister();
-}
-
-BZ2File::~BZ2File() {
-  if (m_bzFile)
-    closeImpl();
-}
-
-bool BZ2File::open(CStrRef filename, CStrRef mode) {
-  ASSERT(m_bzFile == NULL);
-  
-  return m_innerFile->open(filename, mode) && 
-    (m_bzFile = BZ2_bzdopen(dup(m_innerFile->fd()), mode.data()));
-}
-
-bool BZ2File::close() {
-  return closeImpl();
-}
-
-int64 BZ2File::errnu() {
-  ASSERT(m_bzFile);
-  int errnum = 0;
-  BZ2_bzerror(m_bzFile, &errnum);
-  return errnum;
-}
-
-String BZ2File::errstr() {
-  ASSERT(m_bzFile);
-  int errnum;
-  return BZ2_bzerror(m_bzFile, &errnum);
-}
-
-Variant BZ2File::error() {
-  ASSERT(m_bzFile);
-  int errnum;
-  const char * errstr;
-  errstr = BZ2_bzerror(m_bzFile, &errnum);
-  return CREATE_MAP2("errno", errnum, "errstr", String(errstr));
-}
-
-bool BZ2File::flush() {
-  ASSERT(m_bzFile);
-  return BZ2_bzflush(m_bzFile);
-}  
-
-int64 BZ2File::readImpl(char * buf, int64 length) {
-  ASSERT(m_bzFile);
-  int len = BZ2_bzread(m_bzFile, buf, length); 
-  if (len < length)
-    m_eof = true;
-  return len;
-}
-
-int64 BZ2File::writeImpl(const char * buf, int64 length) {
-  ASSERT(m_bzFile);
-  return BZ2_bzwrite(m_bzFile, (char *)buf, length);
-}
-
-bool BZ2File::closeImpl() {
-  ASSERT(m_bzFile);
-  bool ret = true;
-  BZ2_bzclose(m_bzFile);
-  m_bzFile = NULL;
-  m_innerFile->close();
-  File::closeImpl();
-  m_eof = false;
-  return ret;
-}
-
-bool BZ2File::eof() {
-  ASSERT(m_bzFile);
-  return m_eof;
-}
-
-///////////////////////////////////////////////////////////////////////////////
 Variant f_bzcompress(CStrRef source, int blocksize /* = 4 */, int workfactor /* = 0 */) {
   char *dest = NULL;   
   int error; 
