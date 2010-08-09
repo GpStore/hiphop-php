@@ -15,10 +15,10 @@
    +----------------------------------------------------------------------+
 */
 
+#include <runtime/base/file/ziparchive_file.h>
 #include <runtime/ext/ext_zip.h>
 #include <runtime/ext/ext_file.h>
 #include <runtime/ext/ext_string.h>
-#include <string.h>
 
 // update ZipArchive's status and statusSys properties
 #define UPDATE_STATUS zip_error_get(m_archive, &m_status, &m_statusSys)
@@ -42,12 +42,11 @@
   }                                                     \
 
 namespace HPHP {
-
+///////////////////////////////////////////////////////////////////////////////
 // needed for extension_loaded('zip') to work
 IMPLEMENT_DEFAULT_EXTENSION(zip);
 
 ///////////////////////////////////////////////////////////////////////////////
-
 // passing constants from libzip
 const int64 q_ziparchive_CREATE = ZIP_CREATE;
 const int64 q_ziparchive_EXCL = ZIP_EXCL;
@@ -95,362 +94,6 @@ const int64 q_ziparchive_ER_INTERNAL = ZIP_ER_INTERNAL;
 const int64 q_ziparchive_ER_INCONS = ZIP_ER_INCONS;
 const int64 q_ziparchive_ER_REMOVE = ZIP_ER_REMOVE;
 const int64 q_ziparchive_ER_DELETED = ZIP_ER_DELETED;
-
-///////////////////////////////////////////////////////////////////////////////
-// ZipEntryFile class is a crippled stream to implement compatibility 
-// functions f_zip_entry_*. 
-
-class ZipEntryFile : public File {
-public:
-  DECLARE_OBJECT_ALLOCATION(ZipEntryFile);
-
-  const char *o_getClassName() const { return "ZipEntryFile";}
-
-  ZipEntryFile();
-  virtual ~ZipEntryFile();
-
-  bool open(CStrRef filename, CStrRef mode); 
-  void openStream(struct zip_file * file);
-  void setSb(const struct zip_stat * sb);
-  bool close(); 
-  virtual bool flush();  
-  virtual int64 readImpl(char * buf, int64 length); 
-  Variant entryRead(int64 length);
-  virtual int64 writeImpl(const char * buf, int64 length);
-  virtual bool eof();
-  bool isOpened();
-  bool setClose();
-
-  String getName();
-  String getCompressionMethod();
-  int64 getFileSize();
-  int64 getCompressedSize();
-
-private:
-  struct zip_file * m_zaFile;
-  bool m_eof;
-  bool closeImpl(); 
-  struct zip_stat * m_sb;
-  bool m_entry_opened;
-};
-
-IMPLEMENT_OBJECT_ALLOCATION(ZipEntryFile);
-
-ZipEntryFile::ZipEntryFile(): m_zaFile(NULL), m_eof(false), m_sb(NULL), m_entry_opened(false) {
-}
-
-// called when sweeping to free resources
-ZipEntryFile::~ZipEntryFile() {
-  if (m_zaFile) closeImpl();
-}
-
-bool ZipEntryFile::open(CStrRef filename, CStrRef mode) {
-  ASSERT(m_zaFile == NULL);
-  return  true;
-}
-
-void ZipEntryFile::openStream(struct zip_file * file) {
-  ASSERT(m_zaFile == NULL);
-  m_eof = false;
-// m_zaFile should be freed from outside only
-//  if (m_zaFile) zip_fclose(m_zaFile);
-  m_zaFile = file;
-  m_entry_opened = true;
-}
-
-// stat struct of the entry is passed right after openStream
-void ZipEntryFile::setSb(const struct zip_stat * sb) {
-  ASSERT(m_zaFile == NULL);
-  if (sb) {
-  // free previously allocated m_sb
-    if (m_sb) free(m_sb);
-    m_sb = (struct zip_stat *) malloc(sizeof(struct zip_stat));
-    memcpy(m_sb, sb, sizeof(struct zip_stat));
-  }
-}
-
-bool ZipEntryFile::close() {
-  return closeImpl();
-}
-
-bool ZipEntryFile::flush() {
-  ASSERT(m_zaFile);
-  return true;
-}  
-
-int64 ZipEntryFile::readImpl(char * buf, int64 length) {
-  ASSERT(m_zaFile);
-  int len = zip_fread(m_zaFile, buf, length); 
-  if (len <= 0) m_eof = true;
-  return len;
-}
-
-Variant ZipEntryFile::entryRead(int64 length) {
-  ASSERT(m_zaFile);
-  char * buf  = (char *) malloc(length);
-  int len = zip_fread(m_zaFile, buf, length); 
-  if (len <= 0) {
-    m_eof = true;
-    // return false upon eof()
-    return false;
-  }
-  // use AttachString to free buf later
-  else return String(buf, len, AttachString); 
-}
-
-int64 ZipEntryFile::writeImpl(const char * buf, int64 length) {
-  ASSERT(m_zaFile);
-  // not implemented in libzip
-  return 0;
-}
-
-bool ZipEntryFile::closeImpl() {
-  ASSERT(m_zaFile);
-  bool ret = true;
-  if (m_sb) {
-    free(m_sb);
-    m_sb = NULL;
-  }
-
-  // needed for stream
-  zip_fclose(m_zaFile);
-  m_zaFile = NULL;
-  File::closeImpl();
-  m_eof = false;
-  m_entry_opened = false;
-  return ret;
-}
-
-// pseudo close used in zip_entry_close
-bool ZipEntryFile::setClose() {
-  ASSERT(m_zaFile);
-  bool ret = true;
-  if (m_sb) {
-    free(m_sb);
-    m_sb = NULL;
-  }
-  m_zaFile = NULL;
-  m_eof = false;
-  m_entry_opened = false;
-  return ret;
-}
-
-bool ZipEntryFile::eof() {
-  ASSERT(m_zaFile);
-  return m_eof;
-}
-
-bool ZipEntryFile::isOpened() {
-  return m_entry_opened;
-}
-
-String ZipEntryFile::getName() {
-  ASSERT(m_sb);
-  // make a copy
-  return String(m_sb->name, strlen(m_sb->name), CopyString);
-}
-
-String ZipEntryFile::getCompressionMethod() {
-  ASSERT(m_sb);
-  String ret;
-
-  // string mapping copied from PHP's code
-	switch (m_sb->comp_method) {
-		case 0:
-			ret = "stored";
-			break;
-		case 1:
-			ret = "shrunk";
-			break;
-		case 2:
-		case 3:
-		case 4:
-		case 5:
-			ret = "reduced";
-			break;
-		case 6:
-			ret = "imploded";
-			break;
-		case 7:
-			ret = "tokenized";
-			break;
-		case 8:
-			ret = "deflated";
-			break;
-		case 9:
-			ret = "deflatedX";
-			break;
-		case 10:
-			ret = "implodedX";
-			break;
-		default:
-      ret = "";
-	}
-  return ret;
-}
-
-int64 ZipEntryFile::getCompressedSize() {
-  ASSERT(m_sb);
-  return m_sb->comp_size;
-}
-
-int64 ZipEntryFile::getFileSize() {
-  ASSERT(m_sb);
-  return m_sb->size;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// ZipArchiveResource class
-
-class ZipArchiveResource : public SweepableResourceData {
-public:
-  DECLARE_OBJECT_ALLOCATION(ZipArchiveResource);
-
-  const char *o_getClassName() const { return "ZipArchiveResource";}
-
-  ZipArchiveResource();
-  ~ZipArchiveResource();
-
-  Variant open(CStrRef filename);
-  void close();
-  Variant read();
-
-private:
-  // none is smart-pointer based
-  struct zip *m_zip;
-  int cursor;
-  struct zip_file *m_zipfile;
-  ZipEntryFile *m_zef; 
-};
-
-IMPLEMENT_OBJECT_ALLOCATION(ZipArchiveResource);
-
-ZipArchiveResource::ZipArchiveResource() : m_zip(NULL), cursor(0), m_zipfile(NULL), m_zef(NULL) {
-}
-
-ZipArchiveResource::~ZipArchiveResource() {
-  close();
-}
-
-Variant ZipArchiveResource::open(CStrRef filename) {
-  int errorp;
-
-  // release old resource
-  if (m_zip) zip_close(m_zip);
-
-  cursor=0;
-  m_zip = zip_open(filename, 0, &errorp);
-  if (!m_zip) return errorp;
-  else return true;
-}
-
-void ZipArchiveResource::close() {
-  // close current zip_file before closing the archive
-  if (m_zipfile) {
-    zip_fclose(m_zipfile);
-    // avoid being swept by GC 
-    m_zef->openStream(NULL);
-    m_zef = NULL;
-    m_zipfile = NULL;
-  }
-
-  if (m_zip) zip_close(m_zip);
-  m_zip = NULL;
-}
-
-Variant ZipArchiveResource::read() {
-  // release old resource before allocating new
-  if (m_zipfile) {
-    zip_fclose(m_zipfile);
-    // avoid being swept by GC 
-    m_zef->openStream(NULL);
-    m_zef = NULL;
-    m_zipfile = NULL;
-  }
-
-  struct zip_stat sb;
-  int ret = zip_stat_index(m_zip, cursor, 0, &sb);
-  if (ret) return false;
-
-  ZipEntryFile *za = NEW(ZipEntryFile)();
-  Object handle(za);
-  za->setSb(&sb);
-
-  struct zip_file * zip;
-  zip = zip_fopen_index(m_zip, cursor, 0);
-  if (!zip) return false;
-
-  m_zipfile = zip;
-  m_zef = za;
-
-  // passing m_zipfile to the returned ZipEntryFile instant 
-  za->openStream(zip); 
-
-  cursor++;
-  return handle;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// implementation of f_zip_* functions
-// the internal zip_file resource is freed through zip_fclose() only in 
-// f_zip_close() and f_zip_read(). f_zip_entry_open() and f_zip_entry_close()
-// only query status but take no operation.
-
-void f_zip_close(CObjRef zip) {
-  CHECK_ZAR_HANDLE(zip, f);  
-  f->close();
-}
-
-bool f_zip_entry_close(CObjRef zip_entry) {
-  CHECK_ZEF_HANDLE(zip_entry, f);  
-  // similar to f_zip_entry_open, only return status, no operation 
-  return f->setClose();
-}
-
-int64 f_zip_entry_compressedsize(CObjRef zip_entry) {
-  CHECK_ZEF_HANDLE(zip_entry, f);  
-  return f->getCompressedSize();
-}
-
-String f_zip_entry_compressionmethod(CObjRef zip_entry) {
-  CHECK_ZEF_HANDLE(zip_entry, f);  
-  return f->getCompressionMethod();
-}
-
-int64 f_zip_entry_filesize(CObjRef zip_entry) {
-  CHECK_ZEF_HANDLE(zip_entry, f);  
-  return f->getFileSize();
-}
-
-String f_zip_entry_name(CObjRef zip_entry) {
-  CHECK_ZEF_HANDLE(zip_entry, f);  
-  return f->getName();
-}
-
-bool f_zip_entry_open(CObjRef zip, CObjRef zip_entry, CStrRef mode /* = null_string */) {
-  CHECK_ZEF_HANDLE(zip_entry, f);  
-  return f->isOpened();
-}
-
-Variant f_zip_entry_read(CObjRef zip_entry, int64 length /* = 1024 */) {
-  CHECK_ZEF_HANDLE(zip_entry, f);  
-
-  // sanity check
-  if (length <= 0) length = 1024;
-  return f->entryRead(length);
-}
-
-Variant f_zip_open(CStrRef filename) {
-  ZipArchiveResource *zar = NEW(ZipArchiveResource)();
-  Object handle(zar);
-  zar->open(filename);
-  return handle;
-}
-
-Variant f_zip_read(CObjRef zip) {
-  CHECK_ZAR_HANDLE(zip, f);  
-  return f->read();
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 // ZipArchive
@@ -1022,4 +665,66 @@ Variant c_ziparchive::t___destruct() {
   return null;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// implementation of f_zip_* functions
+// the internal zip_file resource is freed through zip_fclose() only in 
+// f_zip_close() and f_zip_read(). f_zip_entry_open() and f_zip_entry_close()
+// only query status but take no operation.
+
+void f_zip_close(CObjRef zip) {
+  CHECK_ZAR_HANDLE(zip, f);  
+  f->close();
+}
+
+bool f_zip_entry_close(CObjRef zip_entry) {
+  CHECK_ZEF_HANDLE(zip_entry, f);  
+  // similar to f_zip_entry_open, only return status, no operation 
+  return f->setClose();
+}
+
+int64 f_zip_entry_compressedsize(CObjRef zip_entry) {
+  CHECK_ZEF_HANDLE(zip_entry, f);  
+  return f->getCompressedSize();
+}
+
+String f_zip_entry_compressionmethod(CObjRef zip_entry) {
+  CHECK_ZEF_HANDLE(zip_entry, f);  
+  return f->getCompressionMethod();
+}
+
+int64 f_zip_entry_filesize(CObjRef zip_entry) {
+  CHECK_ZEF_HANDLE(zip_entry, f);  
+  return f->getFileSize();
+}
+
+String f_zip_entry_name(CObjRef zip_entry) {
+  CHECK_ZEF_HANDLE(zip_entry, f);  
+  return f->getName();
+}
+
+bool f_zip_entry_open(CObjRef zip, CObjRef zip_entry, CStrRef mode /* = null_string */) {
+  CHECK_ZEF_HANDLE(zip_entry, f);  
+  return f->isOpened();
+}
+
+Variant f_zip_entry_read(CObjRef zip_entry, int64 length /* = 1024 */) {
+  CHECK_ZEF_HANDLE(zip_entry, f);  
+  // sanity check
+  if (length <= 0) length = 1024;
+  return f->entryRead(length);
+}
+
+Variant f_zip_open(CStrRef filename) {
+  ZipArchiveResource *zar = NEW(ZipArchiveResource)();
+  Object handle(zar);
+  zar->open(filename);
+  return handle;
+}
+
+Variant f_zip_read(CObjRef zip) {
+  CHECK_ZAR_HANDLE(zip, f);  
+  return f->read();
+}
+
+///////////////////////////////////////////////////////////////////////////////
 }

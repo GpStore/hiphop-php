@@ -2,7 +2,7 @@
 
 include_once 'base.php';
 
-pre("#include <zip.h>");
+pre("#include <runtime/base/file/ziparchive_file.h>");
 
 ///////////////////////////////////////////////////////////////////////////////
 
