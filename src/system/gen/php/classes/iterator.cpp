@@ -1759,9 +1759,8 @@ bool c_ArrayIterator::t_uksort(Variant v_cmp_function) {
 bool c_ArrayIterator::t_valid() {
   INSTANCE_METHOD_INJECTION_BUILTIN(ArrayIterator, ArrayIterator::valid);
   {
-    const Variant &tmp1((x_key(ref(m_arr))));
-    bool tmp2((x_is_null(tmp1)));
-    return !(tmp2);
+    const Variant &tmp1((x_current(ref(m_arr))));
+    return !same(tmp1, false);
   }
 } /* function */
 /* SRC: classes/iterator.php line 923 */

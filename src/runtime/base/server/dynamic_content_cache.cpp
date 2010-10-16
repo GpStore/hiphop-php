@@ -78,13 +78,14 @@ void DynamicContentCache::store(const std::string &name, const char *data,
   }
 }
 
-void DynamicContentCache::revoke(const std::string &name) {
+bool DynamicContentCache::revoke(const std::string &name) {
   ASSERT(!name.empty());
   WriteLock lock(m_mutex);
   StringToResourceFilePtrMap::iterator iter = m_files.find(name);
-  if (iter != m_files.end()) 
+  if (iter != m_files.end()) { 
     m_files.erase(iter);
-  
+    return true;
+  } else return false;
 }
  
 ///////////////////////////////////////////////////////////////////////////////

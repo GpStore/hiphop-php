@@ -16,12 +16,13 @@
 */
 
 #include <runtime/ext/ext_hcache.h>
+#include <runtime/base/server/dynamic_content_cache.h>
 
 namespace HPHP {
 ///////////////////////////////////////////////////////////////////////////////
 
 bool f_hcache_revoke(CStrRef name) {
-  throw NotImplementedException(__func__);
+  return DynamicContentCache::TheCache.revoke(name.c_str());
 }
 
 

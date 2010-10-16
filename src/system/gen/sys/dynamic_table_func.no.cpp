@@ -7687,6 +7687,21 @@ Variant ifa_bzcompress(void *extra, int count, INVOKE_FEW_ARGS_IMPL_ARGS) {
   if (count == 2) return (f_bzcompress(a0, a1));
   return (f_bzcompress(a0, a1, a2));
 }
+Variant i_hcache_revoke(void *extra, CArrRef params) {
+  FUNCTION_INJECTION(hcache_revoke);
+  int count __attribute__((__unused__)) = params.size();
+  if (count != 1) return throw_wrong_arguments("hcache_revoke", count, 1, 1, 1);
+  {
+    ArrayData *ad(params.get());
+    ssize_t pos = ad ? ad->iter_begin() : ArrayData::invalid_index;
+    CVarRef arg0((ad->getValue(pos)));
+    return (f_hcache_revoke(arg0));
+  }
+}
+Variant ifa_hcache_revoke(void *extra, int count, INVOKE_FEW_ARGS_IMPL_ARGS) {
+  if (count != 1) return throw_wrong_arguments("hcache_revoke", count, 1, 1, 1);
+  return (f_hcache_revoke(a0));
+}
 Variant i_openssl_get_publickey(void *extra, CArrRef params) {
   FUNCTION_INJECTION(openssl_get_publickey);
   int count __attribute__((__unused__)) = params.size();
@@ -44358,6 +44373,22 @@ Variant ei_bzcompress(Eval::VariableEnvironment &env, const Eval::FunctionCallEx
   if (count <= 1) return (x_bzcompress(a0));
   else if (count == 2) return (x_bzcompress(a0, a1));
   else return (x_bzcompress(a0, a1, a2));
+}
+Variant ei_hcache_revoke(Eval::VariableEnvironment &env, const Eval::FunctionCallExpression *caller) {
+  Variant a0;
+  const std::vector<Eval::ExpressionPtr> &params = caller->params();
+  int count __attribute__((__unused__)) = params.size();
+  if (count != 1) return throw_wrong_arguments("hcache_revoke", count, 1, 1, 1);
+  std::vector<Eval::ExpressionPtr>::const_iterator it = params.begin();
+  do {
+    if (it == params.end()) break;
+    a0 = (*it)->eval(env);
+    it++;
+  } while(false);
+  for (; it != params.end(); ++it) {
+    (*it)->eval(env);
+  }
+  return (x_hcache_revoke(a0));
 }
 Variant ei_openssl_get_publickey(Eval::VariableEnvironment &env, const Eval::FunctionCallExpression *caller) {
   Variant a0;
@@ -83762,6 +83793,7 @@ Variant Eval::invoke_from_eval_builtin(const char *s, Eval::VariableEnvironment 
       HASH_INVOKE_FROM_EVAL(0x4BD54A631F665F0FLL, drawpathcurvetosmoothabsolute);
       break;
     case 7955:
+      HASH_INVOKE_FROM_EVAL(0x69C7CD05C4203F13LL, hcache_revoke);
       HASH_INVOKE_FROM_EVAL(0x3B197C0731233F13LL, dom_characterdata_substring_data);
       break;
     case 7963:
@@ -84371,6 +84403,7 @@ CallInfo ci_posix_strerror((void*)&i_posix_strerror, (void*)&ifa_posix_strerror,
 CallInfo ci_libxml_use_internal_errors((void*)&i_libxml_use_internal_errors, (void*)&ifa_libxml_use_internal_errors, 1, 0, 0x0000000000000000LL);
 CallInfo ci_end_user_func_async((void*)&i_end_user_func_async, (void*)&ifa_end_user_func_async, 3, 0, 0x0000000000000000LL);
 CallInfo ci_bzcompress((void*)&i_bzcompress, (void*)&ifa_bzcompress, 3, 0, 0x0000000000000000LL);
+CallInfo ci_hcache_revoke((void*)&i_hcache_revoke, (void*)&ifa_hcache_revoke, 1, 0, 0x0000000000000000LL);
 CallInfo ci_openssl_get_publickey((void*)&i_openssl_get_publickey, (void*)&ifa_openssl_get_publickey, 1, 0, 0x0000000000000000LL);
 CallInfo ci_dom_node_lookup_prefix((void*)&i_dom_node_lookup_prefix, (void*)&ifa_dom_node_lookup_prefix, 2, 0, 0x0000000000000000LL);
 CallInfo ci_time_nanosleep((void*)&i_time_nanosleep, (void*)&ifa_time_nanosleep, 2, 0, 0x0000000000000000LL);
@@ -97669,6 +97702,10 @@ bool get_call_info_builtin(const CallInfo *&ci, void *&extra, const char *s, int
       }
       break;
     case 7955:
+      HASH_GUARD(0x69C7CD05C4203F13LL, hcache_revoke) {
+        ci = &ci_hcache_revoke;
+        return true;
+      }
       HASH_GUARD(0x3B197C0731233F13LL, dom_characterdata_substring_data) {
         ci = &ci_dom_characterdata_substring_data;
         return true;
