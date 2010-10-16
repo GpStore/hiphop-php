@@ -148,7 +148,7 @@ void HttpRequestHandler::handleRequest(Transport *transport) {
   // determine whether we should compress response
   bool compressed = transport->decideCompression();
 
-  const char *data; int len;
+  const char *data; int len; time_t mtime;
   size_t pos = path.rfind('.');
   const char *ext = (pos != string::npos) ? (path.c_str() + pos + 1) : NULL;
   bool cachableDynamicContent =
@@ -161,9 +161,8 @@ void HttpRequestHandler::handleRequest(Transport *transport) {
     // check against dynamic content cache
     ASSERT(transport->getUrl());
     string key = transport->getUrl();
-    if (DynamicContentCache::TheCache.find(key, data, len, compressed)) {
-      sendStaticContent(transport, data, len, 0, compressed, path);
-//      transport->sendRaw((void*)data, len, 200, compressed);
+    if (DynamicContentCache::TheCache.find(key, data, len, compressed, mtime)) {
+      sendStaticContent(transport, data, len, mtime, compressed, path);
       ServerStats::LogPage(path, 200);
       return;
     }
@@ -313,7 +312,7 @@ bool HttpRequestHandler::executePHPRequest(Transport *transport,
         ASSERT(transport->getUrl());
         string key = transport->getUrl();
         DynamicContentCache::TheCache.store(key, content.data(),
-                                            content.size());
+                                            content.size(), time(NULL));
       }
       code = 200;
       transport->sendRaw((void*)content.data(), content.size(), code);

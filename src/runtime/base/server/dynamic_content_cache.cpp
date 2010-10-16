@@ -29,7 +29,7 @@ DynamicContentCache::DynamicContentCache() {
 }
 
 bool DynamicContentCache::find(const std::string &name, const char *&data,
-                               int &len, bool &compressed) {
+                               int &len, bool &compressed, time_t &mtime) {
   ASSERT(!name.empty());
 
   ReadLock lock(m_mutex);
@@ -39,10 +39,12 @@ bool DynamicContentCache::find(const std::string &name, const char *&data,
     if (compressed && f.compressed) {
       data = f.compressed->data();
       len = f.compressed->size();
+      mtime = f.mtime;
     } else {
       compressed = false;
       data = f.file->data();
       len = f.file->size();
+      mtime = f.mtime;
     }
     return true;
   }
@@ -50,7 +52,7 @@ bool DynamicContentCache::find(const std::string &name, const char *&data,
 }
 
 void DynamicContentCache::store(const std::string &name, const char *data,
-                                int size) {
+                                int size, time_t mtime) {
   ASSERT(!name.empty());
   ASSERT(size > 0);
 
@@ -58,6 +60,7 @@ void DynamicContentCache::store(const std::string &name, const char *data,
   StringBufferPtr sb(new StringBuffer(size));
   sb->append(data, size);
   f->file = sb;
+  f->mtime = mtime;
 
   int len = sb->size();
   char *compressed = gzencode(sb->data(), len, 9, CODING_GZIP);

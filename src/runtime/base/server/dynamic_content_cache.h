@@ -34,12 +34,12 @@ public:
    * Find a file from cache.
    */
   bool find(const std::string &name, const char *&data, int &len,
-            bool &compressed);
+            bool &compressed, time_t &mtime);
 
   /**
    * Store a file to cache.
    */
-  void store(const std::string &name, const char *data, int size);
+  void store(const std::string &name, const char *data, int size, time_t mtime);
 
   /**
    * revoke a file from cache.
@@ -54,6 +54,7 @@ private:
   public:
     StringBufferPtr file;
     StringBufferPtr compressed;
+    time_t mtime;
   };
 
   StringToResourceFilePtrMap m_files;
