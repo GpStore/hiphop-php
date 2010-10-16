@@ -33,6 +33,7 @@
 #include <test/test_ext_file.h>
 #include <test/test_ext_function.h>
 #include <test/test_ext_hash.h>
+#include <test/test_ext_hcache.h>
 #include <test/test_ext_iconv.h>
 #include <test/test_ext_icu.h>
 #include <test/test_ext_image.h>

@@ -18,6 +18,7 @@
 #include "file.inc"
 #include "function.inc"
 #include "hash.inc"
+#include "hcache.inc"
 #include "iconv.inc"
 #include "icu.inc"
 #include "image.inc"

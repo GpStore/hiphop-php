@@ -18,6 +18,7 @@ RUN_TESTSUITE(TestExtFb);
 RUN_TESTSUITE(TestExtFile);
 RUN_TESTSUITE(TestExtFunction);
 RUN_TESTSUITE(TestExtHash);
+RUN_TESTSUITE(TestExtHcache);
 RUN_TESTSUITE(TestExtIconv);
 RUN_TESTSUITE(TestExtIcu);
 RUN_TESTSUITE(TestExtImage);
