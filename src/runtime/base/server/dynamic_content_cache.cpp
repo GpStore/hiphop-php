@@ -75,6 +75,11 @@ void DynamicContentCache::store(const std::string &name, const char *data,
   }
 }
 
+void DynamicContentCache::revoke(const std::string &name) {
+  ASSERT(!name.empty());
+  m_files.erase(name);
+}
+ 
 ///////////////////////////////////////////////////////////////////////////////
 }
 

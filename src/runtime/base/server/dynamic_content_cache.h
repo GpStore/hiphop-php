@@ -41,6 +41,11 @@ public:
    */
   void store(const std::string &name, const char *data, int size);
 
+  /**
+   * revoke a file from cache.
+   */
+  void revoke(const std::string &name);
+
 private:
   ReadWriteMutex m_mutex;
 
