@@ -166,7 +166,9 @@ public:
   static std::set<std::string> AllowedFiles;
   static hphp_string_imap<std::string> StaticFileExtensions;
   static std::set<std::string> ForbiddenFileExtensions;
-  static std::set<std::string> StaticFileGenerators;
+  static std::vector<std::string> StaticFileGeneratorsInclude;
+  static std::vector<std::string> StaticFileGeneratorsExclude;
+  static int StaticFileLifeTime;
   static FilesMatchPtrVec FilesMatches;
 
   static std::string TakeoverFilename;

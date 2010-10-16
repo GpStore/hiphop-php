@@ -170,7 +170,9 @@ std::vector<std::string> RuntimeOption::AllowedDirectories;
 std::set<std::string> RuntimeOption::AllowedFiles;
 hphp_string_imap<std::string> RuntimeOption::StaticFileExtensions;
 std::set<std::string> RuntimeOption::ForbiddenFileExtensions;
-std::set<std::string> RuntimeOption::StaticFileGenerators;
+std::vector<std::string> RuntimeOption::StaticFileGeneratorsInclude;
+std::vector<std::string> RuntimeOption::StaticFileGeneratorsExclude;
+int RuntimeOption::StaticFileLifeTime;
 FilesMatchPtrVec RuntimeOption::FilesMatches;
 
 std::string RuntimeOption::TakeoverFilename;
@@ -775,7 +777,10 @@ void RuntimeOption::Load(Hdf &config) {
   {
     Hdf content = config["StaticFile"];
     content["Extensions"].get(StaticFileExtensions);
-    content["Generators"].get(StaticFileGenerators);
+    content["GeneratorsInclude"].get(StaticFileGeneratorsInclude);
+    content["GeneratorsExclude"].get(StaticFileGeneratorsExclude);
+    StaticFileLifeTime = content["LifeTime"].getInt16(0);
+    if (StaticFileLifeTime <= 0) StaticFileLifeTime = 0;
 
     Hdf matches = content["FilesMatch"];
     if (matches.exists()) {
